@@ -3,6 +3,23 @@
   if (window.__tradBulles) return;
   window.__tradBulles = true;
 
+  const t = (key, subs) => chrome.i18n.getMessage(key, subs) || key;
+  // Messages d'erreur du moteur (codes) -> texte lisible.
+  const errText = (e) => {
+    const m = String(e || '');
+    if (m.startsWith('E_FETCH')) return t('errFetch');
+    if (m.startsWith('E_SMALL')) return t('errSmall');
+    if (m.startsWith('E_OCR')) return t('errOcr');
+    return m || t('errUnreadable');
+  };
+  const bubblesLabel = (n) => (n === 1 ? t('stBubble1') : t('stBubblesN', [String(n)]));
+
+  // Police BD de l'extension (repli sur les polices du système si le site la bloque).
+  try {
+    const face = new FontFace('TB Comic', `url(${chrome.runtime.getURL('fonts/comic-neue-700.woff2')})`, { weight: '700' });
+    face.load().then((f) => document.fonts.add(f)).catch(() => {});
+  } catch { /* FontFace indisponible */ }
+
   const states = new Map(); // img -> état de l'overlay
   let lastContextTarget = null;
   let pageMode = false;
@@ -21,7 +38,7 @@
         ok: false,
         fatal: /context invalidated/i.test(String(e.message)),
         error: /context invalidated/i.test(String(e.message))
-          ? 'extension mise à jour, recharge la page' : String(e.message || e),
+          ? 'extension updated' : String(e.message || e),
       }));
 
   const pageLang = () =>
@@ -48,7 +65,7 @@
       display: flex; align-items: center; justify-content: center; text-align: center;
       background: #fff; color: #111; border-radius: 10px; padding: 2px 3px; overflow: hidden;
       transition: opacity .15s;
-      font-family: "Comic Neue", "Comic Sans MS", "Chalkboard SE", "Segoe UI", system-ui, sans-serif;
+      font-family: "TB Comic", "Comic Neue", "Comic Sans MS", "Chalkboard SE", "Segoe UI", system-ui, sans-serif;
       font-weight: 700; line-height: 1.12; box-shadow: 0 0 0 1px rgba(0,0,0,.08);
     }
     .box > div { width: 100%; overflow-wrap: normal; hyphens: auto; }
@@ -82,10 +99,18 @@
     const host = document.createElement('div');
     host.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;z-index:2147483646;pointer-events:none;margin:0;padding:0;border:0;';
     const root = host.attachShadow({ mode: 'open' });
-    root.innerHTML = `<style>${CSS}</style><div class="layer"></div>
-      <div class="bar"><span class="spin"></span><span class="status"></span>
-      <button class="retry" hidden>Réessayer</button>
-      <button class="toggle" hidden>Original</button><button class="close" title="Retirer">✕</button></div>`;
+    const el = (tag, cls, text) => {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text) e.textContent = text;
+      return e;
+    };
+    const bar = el('div', 'bar');
+    const retryBtn = el('button', 'retry');
+    const toggleBtn = el('button', 'toggle');
+    retryBtn.hidden = toggleBtn.hidden = true;
+    bar.append(el('span', 'spin'), el('span', 'status'), retryBtn, toggleBtn, el('button', 'close', '✕'));
+    root.append(el('style', null, CSS), el('div', 'layer'), bar);
     document.documentElement.appendChild(host);
 
     const st = {
@@ -96,13 +121,16 @@
       toggle: root.querySelector('.toggle'),
       retry: root.querySelector('.retry'),
     };
+    st.retry.textContent = t('btnRetry');
+    st.toggle.textContent = t('btnOriginal');
+    root.querySelector('.close').title = t('btnClose');
     st.setStatus = (text, busy = true) => {
       st.status.textContent = text;
       st.spin.style.display = busy ? '' : 'none';
     };
     st.toggle.addEventListener('click', () => {
       const hidden = st.layer.classList.toggle('hidden');
-      st.toggle.textContent = hidden ? 'Traduction' : 'Original';
+      st.toggle.textContent = hidden ? t('btnTranslation') : t('btnOriginal');
     });
     root.querySelector('.close').addEventListener('click', () => removeState(img));
     st.retry.addEventListener('click', () => processImage(img, { force: true }));
@@ -215,7 +243,7 @@
       const gx = Math.max(0, x), gy = Math.max(0, y);
       box.dataset.geo = JSON.stringify({ x: gx, y: gy, w: Math.min(1 - gx, w), h: Math.min(1 - gy, h) });
       setGeometry(box, 1);
-      box.title = `Original : ${b.text}\n(clic : afficher / masquer)`;
+      box.title = t('boxTitle', [b.text]);
       const inner = document.createElement('div');
       inner.textContent = b.translation || b.text;
       box.appendChild(inner);
@@ -252,7 +280,7 @@
     const x0 = Math.max(0, r.left), y0 = Math.max(0, r.top);
     const x1 = Math.min(innerWidth, r.right), y1 = Math.min(innerHeight, r.bottom);
     if (x1 - x0 < 50 || y1 - y0 < 50) return null;
-    st.setStatus('Capture de l’écran…');
+    st.setStatus(t('stCapture'));
     st.host.style.visibility = 'hidden';
     await nextFrames(2);
     const res = await send({
@@ -292,7 +320,7 @@
     st.covered = [Math.min(c0, cap.covered[0]), Math.max(c1, cap.covered[1])];
     if (fresh.length) render(st, fresh, region, true);
     st.count += fresh.length;
-    st.lastStatus = `${st.count} bulle${st.count > 1 ? 's' : ''}`;
+    st.lastStatus = bubblesLabel(st.count);
     st.setStatus(st.lastStatus, false);
     st.toggle.hidden = !st.count;
   }
@@ -303,7 +331,7 @@
       removeState(img);
     }
     const st = createOverlay(img);
-    st.setStatus('Lecture du texte…');
+    st.setStatus(t('stReading'));
     let region = { x: 0, y: 0, w: 1, h: 1 };
     let res;
     const url = srcOf(img);
@@ -332,24 +360,24 @@
     if (!states.has(img)) return; // retiré entre-temps
     st.busy = false;
     if (!res?.ok) {
-      st.setStatus(`Erreur : ${res?.error || 'image illisible'}`, false);
+      st.setStatus(t('errPrefix', [res?.fatal ? t('errReload') : errText(res?.error)]), false);
       st.retry.hidden = !!res?.fatal;
       return;
     }
     const n = res.bubbles.length;
     st.count = n;
     if (!n && !st.covered) {
-      st.setStatus('Aucun texte détecté', false);
+      st.setStatus(t('stNoText'), false);
       setTimeout(() => states.get(img) === st && removeState(img), 4000);
       return;
     }
     render(st, res.bubbles, region);
     const failed = res.bubbles.filter((b) => !b.translation).length;
-    st.lastStatus = `${n} bulle${n > 1 ? 's' : ''}${failed ? ` (${failed} non traduite${failed > 1 ? 's' : ''})` : ''}`;
+    st.lastStatus = bubblesLabel(n) + (failed ? ` ${t('stFailed', [String(failed)])}` : '');
     st.setStatus(st.lastStatus, false);
     st.toggle.hidden = !n;
     st.retry.hidden = !failed && !res.error;
-    if (res.error) st.status.title = `Traduction : ${res.error}`;
+    if (res.error) st.status.title = t('errTranslate', [res.error]);
   }
 
   // ---------- Mode page entière (avec images chargées au défilement) ----------

@@ -1,0 +1,233 @@
+{
+ "extName": {
+  "message": "Traducteur de bulles"
+ },
+ "extDescription": {
+  "message": "Traduit le texte des bulles dans les images (BD, manga, webtoons). Gratuit, sans compte, lecture du texte en local."
+ },
+ "cmdTranslatePage": {
+  "message": "Traduire toutes les images de la page"
+ },
+ "menuTranslateImage": {
+  "message": "Traduire les bulles de cette image"
+ },
+ "menuTranslatePage": {
+  "message": "Traduire toutes les images de la page"
+ },
+ "menuClear": {
+  "message": "Effacer les traductions"
+ },
+ "popupOcrLang": {
+  "message": "Langue du texte dans l'image"
+ },
+ "langAuto": {
+  "message": "Automatique (selon la page)"
+ },
+ "langEng": {
+  "message": "Anglais"
+ },
+ "langJpnVert": {
+  "message": "Japonais (vertical, manga)"
+ },
+ "langJpn": {
+  "message": "Japonais (horizontal)"
+ },
+ "langKor": {
+  "message": "Coréen (webtoon)"
+ },
+ "langChiSim": {
+  "message": "Chinois simplifié (manhua)"
+ },
+ "langChiTra": {
+  "message": "Chinois traditionnel"
+ },
+ "langFra": {
+  "message": "Français"
+ },
+ "langSpa": {
+  "message": "Espagnol"
+ },
+ "langDeu": {
+  "message": "Allemand"
+ },
+ "langIta": {
+  "message": "Italien"
+ },
+ "langPor": {
+  "message": "Portugais"
+ },
+ "langRus": {
+  "message": "Russe"
+ },
+ "popupTarget": {
+  "message": "Traduire en"
+ },
+ "tgtFr": {
+  "message": "Français"
+ },
+ "tgtEn": {
+  "message": "Anglais"
+ },
+ "tgtEs": {
+  "message": "Espagnol"
+ },
+ "tgtDe": {
+  "message": "Allemand"
+ },
+ "tgtIt": {
+  "message": "Italien"
+ },
+ "tgtPt": {
+  "message": "Portugais"
+ },
+ "tgtAr": {
+  "message": "Arabe"
+ },
+ "tgtRu": {
+  "message": "Russe"
+ },
+ "tgtTr": {
+  "message": "Turc"
+ },
+ "tgtId": {
+  "message": "Indonésien"
+ },
+ "tgtVi": {
+  "message": "Vietnamien"
+ },
+ "tgtJa": {
+  "message": "Japonais"
+ },
+ "tgtKo": {
+  "message": "Coréen"
+ },
+ "popupEngine": {
+  "message": "Service de traduction (gratuit, sans clé)"
+ },
+ "engGoogle": {
+  "message": "Google Traduction"
+ },
+ "engMyMemory": {
+  "message": "MyMemory"
+ },
+ "popupPrecision": {
+  "message": "Précision de lecture"
+ },
+ "precPrecise": {
+  "message": "Précise (recommandé)"
+ },
+ "precFast": {
+  "message": "Rapide"
+ },
+ "popupAutoSite": {
+  "message": "Traduire automatiquement sur"
+ },
+ "popupThisSite": {
+  "message": "ce site"
+ },
+ "popupTranslatePage": {
+  "message": "Traduire toutes les images de la page"
+ },
+ "popupClear": {
+  "message": "Effacer les traductions"
+ },
+ "popupHint": {
+  "message": "Une seule image : clic droit dessus, puis « Traduire les bulles de cette image ». Page entière : Alt+T."
+ },
+ "popupHintCache": {
+  "message": "Le premier usage d'une langue télécharge ses données de lecture (quelques Mo). Les pages déjà traduites s'affichent ensuite instantanément."
+ },
+ "popupClearCache": {
+  "message": "Vider le cache"
+ },
+ "popupCacheCleared": {
+  "message": "Cache vidé"
+ },
+ "popupCannot": {
+  "message": "Impossible sur cette page (pages du navigateur, boutique d'extensions…)."
+ },
+ "popupGrant": {
+  "message": "Autoriser l'accès aux sites (nécessaire)"
+ },
+ "popupApp": {
+  "message": "Sur téléphone ou pour une capture d'écran : l'application web"
+ },
+ "stReading": {
+  "message": "Lecture du texte…"
+ },
+ "stCapture": {
+  "message": "Capture de l'écran…"
+ },
+ "stNoText": {
+  "message": "Aucun texte détecté"
+ },
+ "stBubble1": {
+  "message": "1 bulle"
+ },
+ "stBubblesN": {
+  "message": "$1 bulles"
+ },
+ "stFailed": {
+  "message": "($1 non traduite(s))"
+ },
+ "btnRetry": {
+  "message": "Réessayer"
+ },
+ "btnOriginal": {
+  "message": "Original"
+ },
+ "btnTranslation": {
+  "message": "Traduction"
+ },
+ "btnClose": {
+  "message": "Retirer"
+ },
+ "boxTitle": {
+  "message": "Original : $1\n(clic : afficher / masquer)"
+ },
+ "errPrefix": {
+  "message": "Erreur : $1"
+ },
+ "errUnreadable": {
+  "message": "image illisible"
+ },
+ "errReload": {
+  "message": "extension mise à jour, recharge la page"
+ },
+ "errFetch": {
+  "message": "le site refuse le téléchargement de l'image"
+ },
+ "errSmall": {
+  "message": "image trop petite"
+ },
+ "errOcr": {
+  "message": "lecture du texte impossible"
+ },
+ "errTranslate": {
+  "message": "Traduction : $1"
+ },
+ "welcomeTitle": {
+  "message": "Bienvenue dans Traducteur de bulles"
+ },
+ "welcomeIntro": {
+  "message": "L'extension lit le texte des bulles dans les images et affiche la traduction par-dessus. Tout est gratuit."
+ },
+ "welcomeStep1": {
+  "message": "Une image : clic droit dessus, puis « Traduire les bulles de cette image »."
+ },
+ "welcomeStep2": {
+  "message": "Tout un chapitre : clique sur l'icône de l'extension puis « Traduire toutes les images de la page », ou appuie sur Alt+T. Les images suivantes sont traduites pendant que tu lis."
+ },
+ "welcomeStep3": {
+  "message": "Pour ne plus rien faire : dans la fenêtre de l'extension, coche « Traduire automatiquement sur ce site »."
+ },
+ "welcomeStep4": {
+  "message": "Clique sur une bulle traduite pour revoir l'original."
+ },
+ "welcomeTip": {
+  "message": "Astuce : épingle l'extension (icône puzzle de la barre d'outils) pour l'avoir toujours sous la main."
+ },
+ "welcomePrivacy": {
+  "message": "Confidentialité : la lecture du texte se fait sur ton appareil. Seul le texte des bulles est envoyé au service de traduction choisi. Aucune donnée n'est collectée par l'extension."
+ }
+}

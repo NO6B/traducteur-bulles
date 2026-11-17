@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Traducteur de bulles</title>
+<meta name="description" content="Traduis gratuitement le texte des bulles de BD, manga et webtoons à partir d'une image ou d'une capture d'écran.">
+<meta name="theme-color" content="#1a73e8">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bulles">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header>
+  <img src="icon-192.png" alt="" class="logo">
+  <h1 data-t="title">Traducteur de bulles</h1>
+  <button id="settingsBtn" class="icon-btn" aria-label="Réglages" data-t-aria="settings">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+  </button>
+</header>
+
+<main>
+  <section id="settings" hidden>
+    <label><span data-t="ocrLang">Langue du texte dans l'image</span>
+      <select id="ocrLang">
+        <option value="eng" data-t="langEng">Anglais</option>
+        <option value="jpn_vert" data-t="langJpnVert">Japonais (vertical, manga)</option>
+        <option value="jpn" data-t="langJpn">Japonais (horizontal)</option>
+        <option value="kor" data-t="langKor">Coréen (webtoon)</option>
+        <option value="chi_sim" data-t="langChiSim">Chinois simplifié (manhua)</option>
+        <option value="chi_tra" data-t="langChiTra">Chinois traditionnel</option>
+        <option value="fra" data-t="langFra">Français</option>
+        <option value="spa" data-t="langSpa">Espagnol</option>
+        <option value="deu" data-t="langDeu">Allemand</option>
+        <option value="ita" data-t="langIta">Italien</option>
+        <option value="por" data-t="langPor">Portugais</option>
+        <option value="rus" data-t="langRus">Russe</option>
+      </select>
+    </label>
+    <label><span data-t="target">Traduire en</span>
+      <select id="targetLang">
+        <option value="fr" data-t="tgtFr">Français</option>
+        <option value="en" data-t="tgtEn">Anglais</option>
+        <option value="es" data-t="tgtEs">Espagnol</option>
+        <option value="de" data-t="tgtDe">Allemand</option>
+        <option value="it" data-t="tgtIt">Italien</option>
+        <option value="pt" data-t="tgtPt">Portugais</option>
+        <option value="ar" data-t="tgtAr">Arabe</option>
+        <option value="ru" data-t="tgtRu">Russe</option>
+        <option value="tr" data-t="tgtTr">Turc</option>
+        <option value="id" data-t="tgtId">Indonésien</option>
+        <option value="vi" data-t="tgtVi">Vietnamien</option>
+        <option value="ja" data-t="tgtJa">Japonais</option>
+        <option value="ko" data-t="tgtKo">Coréen</option>
+      </select>
+    </label>
+    <label><span data-t="precision">Précision de lecture</span>
+      <select id="precise">
+        <option value="true" data-t="precPrecise">Précise (recommandé)</option>
+        <option value="false" data-t="precFast">Rapide</option>
+      </select>
+    </label>
+    <label><span data-t="engine">Service de traduction (gratuit)</span>
+      <select id="engine">
+        <option value="google">Google Traduction</option>
+        <option value="mymemory">MyMemory</option>
+      </select>
+    </label>
+  </section>
+
+  <section id="drop" class="drop">
+    <svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h8M8 7h5"/></svg>
+    <p class="big" data-t="dropTitle">Choisis une page de BD, de manga ou une capture d'écran</p>
+    <label class="btn primary">
+      <input id="file" type="file" accept="image/*" multiple hidden>
+      <span data-t="pick">Choisir des images</span>
+    </label>
+    <p class="hint" data-t="dropHint">Tu peux aussi glisser-déposer ou coller une image (Ctrl+V).</p>
+  </section>
+
+  <div id="toolbar" hidden>
+    <button id="saveAll" class="btn secondary" data-t="saveAll">Tout enregistrer</button>
+    <button id="clearAll" class="btn secondary" data-t="clearAll">Tout effacer</button>
+  </div>
+  <section id="list"></section>
+
+  <section id="install" class="note" hidden>
+    <p id="installText"></p>
+    <button id="installBtn" class="btn primary" hidden data-t="install">Installer l'application</button>
+  </section>
+
+  <p class="foot">
+    <span data-t="privacy">La lecture du texte se fait sur ton appareil ; seul le texte des bulles est envoyé au service de traduction.</span>
+    <a href="../privacy.html" data-t="privacyLink">Confidentialité</a> ·
+    <a href="../" data-t="home">Extension pour ordinateur</a>
+  </p>
+</main>
+
+<template id="card">
+  <article class="card">
+    <div class="frame"><canvas></canvas><div class="badge"></div>
+      <button class="icon-btn remove" aria-label="Retirer">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="row">
+      <span class="status"></span>
+      <button class="btn small secondary toggle" hidden></button>
+      <button class="btn small primary save" hidden></button>
+      <button class="btn small secondary retry" hidden></button>
+    </div>
+  </article>
+</template>
+
+<script src="../lib/tesseract.min.js"></script>
+<script src="../engine/ocr.js"></script>
+<script src="../engine/translate.js"></script>
+<script src="../engine/render.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

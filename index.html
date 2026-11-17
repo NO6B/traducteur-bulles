@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Traducteur de bulles : traduis BD, manga et webtoons gratuitement</title>
+<meta name="description" content="Traduis gratuitement le texte des bulles de BD, manga et webtoons, sur ordinateur (extension) et sur téléphone (application web). Sans compte, sans pub.">
+<meta property="og:title" content="Traducteur de bulles">
+<meta property="og:description" content="Traduis gratuitement les bulles de BD, manga et webtoons. Ordinateur et téléphone.">
+<meta property="og:image" content="https://no6b.github.io/traducteur-bulles/assets/demo-apres.jpg">
+<link rel="icon" href="app/icon-192.png">
+<style>
+  :root { color-scheme: light dark; --accent: #1a73e8; --bg: #f6f7f9; --card: #fff; --text: #1d1d1f; --muted: #667; --line: #dde; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #121316; --card: #1d1f23; --text: #eceef1; --muted: #9aa; --line: #2e3137; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 20px; }
+  header { padding: 48px 0 24px; text-align: center; }
+  header img { width: 72px; height: 72px; }
+  h1 { font-size: clamp(28px, 5vw, 42px); margin: 10px 0 8px; line-height: 1.15; }
+  .lead { color: var(--muted); font-size: 19px; max-width: 640px; margin: 0 auto; }
+  .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 26px 0 8px; }
+  .btn { display: inline-block; padding: 14px 22px; border-radius: 12px; font-weight: 600; text-decoration: none; }
+  .btn.primary { background: var(--accent); color: #fff; }
+  .btn.secondary { background: var(--card); color: var(--text); border: 1px solid var(--line); }
+  .demo { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 34px 0; }
+  .demo figure { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .demo img { display: block; width: 100%; height: auto; }
+  .demo figcaption { padding: 8px 12px; font-size: 14px; color: var(--muted); }
+  @media (max-width: 620px) { .demo { grid-template-columns: 1fr; } }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 18px 0 36px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+  .card h3 { margin: 0 0 6px; font-size: 18px; }
+  .card p, .card li { color: var(--muted); font-size: 15px; }
+  .card ol { padding-left: 20px; margin: 8px 0 0; }
+  h2 { font-size: 26px; margin: 40px 0 6px; }
+  code { background: rgba(127,127,127,.15); padding: 1px 5px; border-radius: 5px; font-size: 14px; }
+  footer { color: var(--muted); font-size: 14px; text-align: center; padding: 30px 0 40px; }
+  footer a, .card a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="app/icon-192.png" alt="">
+    <h1 data-t="h1">Traduis les bulles de BD, manga et webtoons</h1>
+    <p class="lead" data-t="lead">Gratuit, sans compte et sans pub. La lecture du texte se fait sur ton appareil ; la traduction s'affiche directement dans les bulles.</p>
+    <div class="ctas">
+      <a class="btn primary" href="app/" data-t="ctaApp">Ouvrir l'application (téléphone)</a>
+      <a class="btn secondary" href="#extension" data-t="ctaExt">Installer l'extension (ordinateur)</a>
+    </div>
+  </header>
+
+  <section class="demo">
+    <figure><img src="assets/demo-avant.jpg" alt="Page originale en anglais" loading="lazy"><figcaption data-t="before">Avant</figcaption></figure>
+    <figure><img src="assets/demo-apres.jpg" alt="Même page traduite en français" loading="lazy"><figcaption data-t="after">Après</figcaption></figure>
+  </section>
+
+  <div class="grid">
+    <div class="card"><h3 data-t="f1t">Traduction dans les bulles</h3><p data-t="f1">Le texte d'origine est effacé et remplacé par la traduction, à la couleur de la bulle.</p></div>
+    <div class="card"><h3 data-t="f2t">Chapitres entiers</h3><p data-t="f2">L'extension traduit toutes les images de la page, en avance pendant que tu lis, ou automatiquement sur tes sites préférés.</p></div>
+    <div class="card"><h3 data-t="f3t">Respect de la vie privée</h3><p data-t="f3">Les images sont lues sur ton appareil. Seul le texte des bulles part au service de traduction. Aucune donnée collectée.</p></div>
+  </div>
+
+  <h2 id="phone" data-t="phoneTitle">Sur téléphone (Android et iPhone)</h2>
+  <div class="grid">
+    <div class="card"><h3>Android</h3><ol>
+      <li data-t="and1">Ouvre l'application avec Chrome et appuie sur « Installer l'application ».</li>
+      <li data-t="and2">Fais une capture d'écran de la page à traduire, puis « Partager » vers « Bulles ».</li>
+      <li data-t="and3">Enregistre ou partage l'image traduite.</li>
+    </ol><p data-t="andFx">Pour traduire directement dans le navigateur, une version de l'extension pour Firefox Android est en préparation.</p></div>
+    <div class="card"><h3>iPhone / iPad</h3><ol>
+      <li data-t="ios1">Ouvre l'application dans Safari, bouton Partager, puis « Sur l'écran d'accueil ».</li>
+      <li data-t="ios2">Fais une capture d'écran, ouvre « Bulles » et choisis la capture.</li>
+      <li data-t="ios3">Appuie sur « Partager » pour l'enregistrer dans tes photos.</li>
+    </ol></div>
+  </div>
+
+  <h2 id="extension" data-t="extTitle">Sur ordinateur : l'extension</h2>
+  <div class="grid">
+    <div class="card"><h3>Chrome, Brave, Edge, Opera</h3><ol>
+      <li><span data-t="ext1">Télécharge le fichier</span> <a href="https://github.com/NO6B/traducteur-bulles/releases/latest" data-t="extZip">de la dernière version (.zip)</a><span data-t="ext1b"> et décompresse-le.</span></li>
+      <li data-t="ext2">Ouvre la page des extensions (chrome://extensions, brave://extensions…) et active le « Mode développeur ».</li>
+      <li data-t="ext3">« Charger l'extension non empaquetée » et choisis le dossier décompressé.</li>
+    </ol></div>
+    <div class="card"><h3 data-t="useTitle">Utilisation</h3><ol>
+      <li data-t="use1">Une image : clic droit, « Traduire les bulles de cette image ».</li>
+      <li data-t="use2">Toute la page : icône de l'extension ou Alt+T.</li>
+      <li data-t="use3">Clique sur une bulle pour revoir l'original.</li>
+    </ol></div>
+  </div>
+
+  <footer>
+    <a href="privacy.html" data-t="privacy">Confidentialité</a> ·
+    <a href="https://github.com/NO6B/traducteur-bulles" data-t="source">Code source</a> ·
+    <span data-t="credits">OCR : Tesseract.js · Police : Comic Neue (OFL)</span>
+  </footer>
+</div>
+<script>
+// Version anglaise si le navigateur n'est pas en français.
+if (!navigator.language.toLowerCase().startsWith('fr')) {
+  const EN = {
+    h1: 'Translate speech bubbles in comics, manga and webtoons',
+    lead: 'Free, no account, no ads. Text recognition runs on your device; the translation appears right inside the bubbles.',
+    ctaApp: 'Open the app (phone)', ctaExt: 'Install the extension (desktop)', before: 'Before', after: 'After',
+    f1t: 'Translation inside the bubbles', f1: 'The original text is erased and replaced by the translation, in the bubble’s own colour.',
+    f2t: 'Whole chapters', f2: 'The extension translates every image on the page, ahead of your reading, or automatically on your favourite sites.',
+    f3t: 'Privacy first', f3: 'Images are read on your device. Only the bubble text goes to the translation service. No data collected.',
+    phoneTitle: 'On a phone (Android and iPhone)',
+    and1: 'Open the app in Chrome and tap “Install the app”.', and2: 'Take a screenshot of the page, then “Share” it to “Bulles”.',
+    and3: 'Save or share the translated image.', andFx: 'To translate right in the browser, a Firefox for Android version of the extension is on its way.',
+    ios1: 'Open the app in Safari, Share button, then “Add to Home Screen”.', ios2: 'Take a screenshot, open “Bulles” and pick it.',
+    ios3: 'Tap “Share” to save it to your photos.',
+    extTitle: 'On a computer: the extension', ext1: 'Download', extZip: 'the latest release (.zip)', ext1b: ' and unzip it.',
+    ext2: 'Open the extensions page (chrome://extensions, brave://extensions…) and turn on “Developer mode”.',
+    ext3: '“Load unpacked” and pick the unzipped folder.', useTitle: 'How to use',
+    use1: 'One image: right-click, “Translate the bubbles in this image”.', use2: 'Whole page: extension icon or Alt+T.',
+    use3: 'Click a bubble to see the original again.', privacy: 'Privacy', source: 'Source code',
+    credits: 'OCR: Tesseract.js · Font: Comic Neue (OFL)',
+  };
+  document.documentElement.lang = 'en';
+  document.title = 'Bubble Translator: translate comics, manga and webtoons for free';
+  for (const el of document.querySelectorAll('[data-t]')) if (EN[el.dataset.t]) el.textContent = EN[el.dataset.t];
+}
+</script>
+</body>
+</html>

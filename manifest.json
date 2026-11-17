@@ -1,29 +1,78 @@
 {
   "manifest_version": 3,
-  "name": "Traducteur de bulles",
-  "version": "1.1.0",
-  "description": "Lit le texte des bulles dans les images (OCR local Tesseract) et le traduit gratuitement, sans clé d'API.",
-  "permissions": ["contextMenus", "offscreen", "storage", "activeTab", "scripting", "declarativeNetRequestWithHostAccess"],
-  "host_permissions": ["<all_urls>"],
+  "name": "__MSG_extName__",
+  "short_name": "__MSG_extName__",
+  "version": "1.2.0",
+  "description": "__MSG_extDescription__",
+  "default_locale": "en",
+  "homepage_url": "https://no6b.github.io/traducteur-bulles/",
+  "permissions": [
+    "contextMenus",
+    "offscreen",
+    "storage",
+    "activeTab",
+    "scripting",
+    "declarativeNetRequestWithHostAccess"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": [
+      "lib/tesseract.min.js",
+      "engine/ocr.js",
+      "engine/translate.js",
+      "background.js"
+    ]
   },
   "action": {
-    "default_title": "Traducteur de bulles",
-    "default_popup": "popup.html"
+    "default_title": "__MSG_extName__",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
   },
   "commands": {
     "translate-page": {
-      "suggested_key": { "default": "Alt+T" },
-      "description": "Traduire toutes les images de la page"
+      "suggested_key": {
+        "default": "Alt+T"
+      },
+      "description": "__MSG_cmdTranslatePage__"
     }
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
   },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "fonts/comic-neue-700.woff2"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "traducteur-bulles@no6b.github.io",
+      "strict_min_version": "128.0",
+      "data_collection_permissions": {
+        "required": [
+          "websiteContent"
+        ]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "128.0"
+    }
   }
 }

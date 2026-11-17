@@ -1,0 +1,233 @@
+{
+ "extName": {
+  "message": "Bubble Translator"
+ },
+ "extDescription": {
+  "message": "Translates speech bubbles in images (comics, manga, webtoons). Free, no account, text recognition runs locally."
+ },
+ "cmdTranslatePage": {
+  "message": "Translate all images on the page"
+ },
+ "menuTranslateImage": {
+  "message": "Translate the bubbles in this image"
+ },
+ "menuTranslatePage": {
+  "message": "Translate all images on the page"
+ },
+ "menuClear": {
+  "message": "Remove translations"
+ },
+ "popupOcrLang": {
+  "message": "Language of the text in the image"
+ },
+ "langAuto": {
+  "message": "Automatic (from the page)"
+ },
+ "langEng": {
+  "message": "English"
+ },
+ "langJpnVert": {
+  "message": "Japanese (vertical, manga)"
+ },
+ "langJpn": {
+  "message": "Japanese (horizontal)"
+ },
+ "langKor": {
+  "message": "Korean (webtoon)"
+ },
+ "langChiSim": {
+  "message": "Simplified Chinese (manhua)"
+ },
+ "langChiTra": {
+  "message": "Traditional Chinese"
+ },
+ "langFra": {
+  "message": "French"
+ },
+ "langSpa": {
+  "message": "Spanish"
+ },
+ "langDeu": {
+  "message": "German"
+ },
+ "langIta": {
+  "message": "Italian"
+ },
+ "langPor": {
+  "message": "Portuguese"
+ },
+ "langRus": {
+  "message": "Russian"
+ },
+ "popupTarget": {
+  "message": "Translate to"
+ },
+ "tgtFr": {
+  "message": "French"
+ },
+ "tgtEn": {
+  "message": "English"
+ },
+ "tgtEs": {
+  "message": "Spanish"
+ },
+ "tgtDe": {
+  "message": "German"
+ },
+ "tgtIt": {
+  "message": "Italian"
+ },
+ "tgtPt": {
+  "message": "Portuguese"
+ },
+ "tgtAr": {
+  "message": "Arabic"
+ },
+ "tgtRu": {
+  "message": "Russian"
+ },
+ "tgtTr": {
+  "message": "Turkish"
+ },
+ "tgtId": {
+  "message": "Indonesian"
+ },
+ "tgtVi": {
+  "message": "Vietnamese"
+ },
+ "tgtJa": {
+  "message": "Japanese"
+ },
+ "tgtKo": {
+  "message": "Korean"
+ },
+ "popupEngine": {
+  "message": "Translation service (free, no key)"
+ },
+ "engGoogle": {
+  "message": "Google Translate"
+ },
+ "engMyMemory": {
+  "message": "MyMemory"
+ },
+ "popupPrecision": {
+  "message": "Reading accuracy"
+ },
+ "precPrecise": {
+  "message": "Accurate (recommended)"
+ },
+ "precFast": {
+  "message": "Fast"
+ },
+ "popupAutoSite": {
+  "message": "Translate automatically on"
+ },
+ "popupThisSite": {
+  "message": "this site"
+ },
+ "popupTranslatePage": {
+  "message": "Translate all images on the page"
+ },
+ "popupClear": {
+  "message": "Remove translations"
+ },
+ "popupHint": {
+  "message": "Single image: right-click it, then “Translate the bubbles in this image”. Whole page: Alt+T."
+ },
+ "popupHintCache": {
+  "message": "The first use of a language downloads its recognition data (a few MB). Pages already translated then show up instantly."
+ },
+ "popupClearCache": {
+  "message": "Clear cache"
+ },
+ "popupCacheCleared": {
+  "message": "Cache cleared"
+ },
+ "popupCannot": {
+  "message": "Not possible on this page (browser pages, extension store…)."
+ },
+ "popupGrant": {
+  "message": "Allow access to websites (required)"
+ },
+ "popupApp": {
+  "message": "On a phone or for a screenshot: the web app"
+ },
+ "stReading": {
+  "message": "Reading text…"
+ },
+ "stCapture": {
+  "message": "Capturing the screen…"
+ },
+ "stNoText": {
+  "message": "No text found"
+ },
+ "stBubble1": {
+  "message": "1 bubble"
+ },
+ "stBubblesN": {
+  "message": "$1 bubbles"
+ },
+ "stFailed": {
+  "message": "($1 not translated)"
+ },
+ "btnRetry": {
+  "message": "Retry"
+ },
+ "btnOriginal": {
+  "message": "Original"
+ },
+ "btnTranslation": {
+  "message": "Translation"
+ },
+ "btnClose": {
+  "message": "Remove"
+ },
+ "boxTitle": {
+  "message": "Original: $1\n(click: show / hide)"
+ },
+ "errPrefix": {
+  "message": "Error: $1"
+ },
+ "errUnreadable": {
+  "message": "image could not be read"
+ },
+ "errReload": {
+  "message": "extension updated, reload the page"
+ },
+ "errFetch": {
+  "message": "the website refuses to let the image be downloaded"
+ },
+ "errSmall": {
+  "message": "image too small"
+ },
+ "errOcr": {
+  "message": "text recognition failed"
+ },
+ "errTranslate": {
+  "message": "Translation: $1"
+ },
+ "welcomeTitle": {
+  "message": "Welcome to Bubble Translator"
+ },
+ "welcomeIntro": {
+  "message": "The extension reads the text in speech bubbles and shows the translation on top. Everything is free."
+ },
+ "welcomeStep1": {
+  "message": "One image: right-click it, then “Translate the bubbles in this image”."
+ },
+ "welcomeStep2": {
+  "message": "A whole chapter: click the extension icon, then “Translate all images on the page”, or press Alt+T. Upcoming images are translated while you read."
+ },
+ "welcomeStep3": {
+  "message": "Hands-free: in the extension window, tick “Translate automatically on this site”."
+ },
+ "welcomeStep4": {
+  "message": "Click a translated bubble to see the original again."
+ },
+ "welcomeTip": {
+  "message": "Tip: pin the extension (puzzle icon in the toolbar) to keep it at hand."
+ },
+ "welcomePrivacy": {
+  "message": "Privacy: text recognition runs on your device. Only the bubble text is sent to the translation service you choose. The extension collects no data."
+ }
+}

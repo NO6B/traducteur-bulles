@@ -1,35 +1,31 @@
-// Service worker : menus, coordination OCR (offscreen), traduction gratuite, cache.
+// Arrière-plan : menus, coordination OCR, traduction gratuite, cache.
+// Chrome : service worker (OCR dans un document offscreen).
+// Firefox : page d'arrière-plan (OCR directement ici, scripts chargés par le manifeste).
+/* global TBTranslate, TBOcr */
+if (typeof importScripts === 'function') importScripts('engine/translate.js');
+const { translateTexts, resolveOcrLang } = TBTranslate;
 
 const DEFAULTS = { ocrLang: 'auto', targetLang: 'fr', engine: 'google', precise: true, autoSites: [] };
 
-// Langue OCR Tesseract -> code de langue pour la traduction.
-const OCR_TO_ISO = {
-  eng: 'en', jpn: 'ja', jpn_vert: 'ja', kor: 'ko', chi_sim: 'zh-CN', chi_tra: 'zh-TW',
-  fra: 'fr', spa: 'es', deu: 'de', ita: 'it', por: 'pt', rus: 'ru',
-};
-
 const getSettings = () => chrome.storage.sync.get(DEFAULTS);
-
-// « Automatique » : la langue des images est déduite de la langue déclarée par la page.
-function resolveOcrLang(setting, pageLang) {
-  if (setting && setting !== 'auto') return setting;
-  const l = (pageLang || '').toLowerCase();
-  if (l.startsWith('ja')) return 'jpn_vert';
-  if (l.startsWith('ko')) return 'kor';
-  if (l.startsWith('zh')) return /tw|hk|mo|hant/.test(l) ? 'chi_tra' : 'chi_sim';
-  const map = { fr: 'fra', es: 'spa', de: 'deu', it: 'ita', pt: 'por', ru: 'rus' };
-  return map[l.slice(0, 2)] || 'eng';
-}
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const t = (key, subs) => chrome.i18n.getMessage(key, subs) || key;
+const IS_CHROME = !!chrome.offscreen; // Firefox : pas d'offscreen, l'OCR tourne dans cette page
 
 // ---------- Menus, raccourci, sites automatiques ----------
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async ({ reason }) => {
+  // Langue cible par défaut : celle du navigateur (si elle est proposée).
+  if (reason === 'install') {
+    const ui = chrome.i18n.getUILanguage().split('-')[0];
+    const supported = ['fr', 'en', 'es', 'de', 'it', 'pt', 'ar', 'ru', 'tr', 'id', 'vi', 'ja', 'ko'];
+    await chrome.storage.sync.set({ targetLang: supported.includes(ui) ? ui : 'en' });
+    chrome.tabs.create({ url: chrome.runtime.getURL('welcome.html') });
+  }
+  if (!chrome.contextMenus) return; // Firefox Android : pas de menu contextuel
   chrome.contextMenus.removeAll(() => {
-    chrome.contextMenus.create({ id: 'translate-image', title: 'Traduire les bulles de cette image', contexts: ['image'] });
-    chrome.contextMenus.create({ id: 'translate-page', title: 'Traduire toutes les images de la page', contexts: ['page'] });
-    chrome.contextMenus.create({ id: 'clear', title: 'Effacer les traductions', contexts: ['page', 'image'] });
+    chrome.contextMenus.create({ id: 'translate-image', title: t('menuTranslateImage'), contexts: ['image'] });
+    chrome.contextMenus.create({ id: 'translate-page', title: t('menuTranslatePage'), contexts: ['page'] });
+    chrome.contextMenus.create({ id: 'clear', title: t('menuClear'), contexts: ['page', 'image'] });
   });
 });
 
@@ -39,7 +35,7 @@ async function sendToTab(tabId, frameId, message) {
   await chrome.tabs.sendMessage(tabId, message, { frameId: frameId ?? 0 });
 }
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus?.onClicked.addListener((info, tab) => {
   if (!tab?.id) return;
   const msg = info.menuItemId === 'translate-image'
     ? { type: 'translate-image', srcUrl: info.srcUrl }
@@ -47,7 +43,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   sendToTab(tab.id, info.frameId, msg).catch((e) => console.warn('Injection impossible :', e));
 });
 
-chrome.commands.onCommand.addListener(async (command, tab) => {
+chrome.commands?.onCommand.addListener(async (command, tab) => {
   if (command !== 'translate-page') return;
   tab = tab || (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
   if (tab?.id) sendToTab(tab.id, 0, { type: 'translate-page' }).catch(() => {});
@@ -76,9 +72,17 @@ async function ensureOffscreen() {
 }
 
 async function runOcr(source, crop, lang, precise) {
+  if (!IS_CHROME) {
+    TBOcr.configure({
+      workerPath: chrome.runtime.getURL('lib/worker.min.js'),
+      corePath: chrome.runtime.getURL('lib/core/'),
+      workerBlobURL: false,
+    });
+    return (await TBOcr.run({ source, crop, lang, precise })).bubbles;
+  }
   await ensureOffscreen();
   const res = await chrome.runtime.sendMessage({ target: 'offscreen', type: 'ocr', source, crop, lang, precise });
-  if (!res?.ok) throw new Error(res?.error || 'lecture du texte impossible');
+  if (!res?.ok) throw new Error(res?.error || 'E_OCR');
   return res.bubbles;
 }
 
@@ -105,101 +109,6 @@ async function setReferer(imageUrl, pageUrl) {
   }
 }
 
-// ---------- Traduction gratuite (sans clé) ----------
-
-// Requête avec nouvelles tentatives en cas de limitation (429) ou d'erreur serveur.
-async function fetchRetry(url, options, label) {
-  let lastError;
-  for (let attempt = 0; attempt < 4; attempt++) {
-    try {
-      const res = await fetch(url, options);
-      if (res.ok) return res;
-      lastError = new Error(`${label} HTTP ${res.status}`);
-      if (res.status !== 429 && res.status < 500) break;
-    } catch (e) {
-      lastError = e;
-    }
-    await sleep(700 * 2 ** attempt);
-  }
-  throw lastError;
-}
-
-// Google : toutes les bulles d'une image en une requête (une ligne par bulle),
-// ce qui donne du contexte au traducteur (tutoiement, genre, noms) et limite les requêtes.
-async function googleOne(text, tl) {
-  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl=auto&tl=${encodeURIComponent(tl)}`;
-  const res = await fetchRetry(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-    body: new URLSearchParams({ q: text }),
-  }, 'Google');
-  const data = await res.json();
-  return (data[0] || []).map((s) => s[0]).join('');
-}
-
-async function translateGoogle(texts, tl) {
-  const out = new Array(texts.length);
-  const chunks = [];
-  let cur = [];
-  let len = 0;
-  texts.forEach((t, i) => {
-    if (cur.length && len + t.length > 4000) { chunks.push(cur); cur = []; len = 0; }
-    cur.push(i);
-    len += t.length + 1;
-  });
-  if (cur.length) chunks.push(cur);
-  for (const idx of chunks) {
-    const joined = idx.map((i) => texts[i]).join('\n');
-    const parts = (await googleOne(joined, tl)).split('\n').map((s) => s.trim());
-    if (parts.length === idx.length && parts.every(Boolean)) {
-      idx.forEach((i, k) => { out[i] = parts[k]; });
-    } else {
-      for (const i of idx) out[i] = await googleOne(texts[i], tl); // découpage incertain : une par une
-    }
-  }
-  return out;
-}
-
-async function translateMyMemory(texts, sl, tl) {
-  const out = [];
-  for (const text of texts) {
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}`
-      + `&langpair=${encodeURIComponent(sl)}|${encodeURIComponent(tl)}`;
-    const data = await (await fetchRetry(url, {}, 'MyMemory')).json();
-    if (data.responseStatus !== 200) throw new Error(`MyMemory : ${data.responseDetails}`);
-    out.push(data.responseData.translatedText);
-  }
-  return out;
-}
-
-const memo = new Map(); // `${langue}|${texte}` -> traduction (durée de vie du service worker)
-
-async function translateTexts(texts, settings, ocrLang) {
-  const sl = OCR_TO_ISO[ocrLang] || 'en';
-  const tl = settings.targetLang;
-  const out = texts.map((t) => memo.get(`${tl}|${t}`) ?? null);
-  const todo = texts.map((t, i) => i).filter((i) => out[i] == null);
-  if (!todo.length) return { out };
-  const pending = todo.map((i) => texts[i]);
-  const engines = settings.engine === 'mymemory'
-    ? [() => translateMyMemory(pending, sl, tl), () => translateGoogle(pending, tl)]
-    : [() => translateGoogle(pending, tl), () => translateMyMemory(pending, sl, tl)];
-  let lastError;
-  for (const run of engines) {
-    try {
-      const res = await run();
-      todo.forEach((i, k) => {
-        out[i] = res[k];
-        memo.set(`${tl}|${texts[i]}`, res[k]);
-      });
-      return { out };
-    } catch (e) {
-      lastError = e;
-    }
-  }
-  return { out, error: String(lastError?.message || lastError) };
-}
-
 // ---------- Cache persistant des pages déjà traduites ----------
 
 const CACHE_MAX = 400;
@@ -224,7 +133,7 @@ function cacheSet(key, bubbles) {
 async function clearCache() {
   const all = await chrome.storage.local.get(null);
   await chrome.storage.local.remove(Object.keys(all).filter((k) => k.startsWith('c:') || k === 'cacheIndex'));
-  memo.clear();
+  TBTranslate.clearMemo();
 }
 
 // ---------- Messages venant du script de contenu ----------
@@ -254,7 +163,7 @@ async function process(msg, sender) {
     };
     bubbles = await runOcr({ dataUrl }, crop, lang, settings.precise);
   } else {
-    throw new Error('message inconnu');
+    throw new Error('E_UNKNOWN');
   }
 
   const { out, error } = await translateTexts(bubbles.map((b) => b.text), settings, lang);

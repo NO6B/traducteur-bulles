@@ -1,7 +1,17 @@
 const DEFAULTS = { ocrLang: 'auto', targetLang: 'fr', engine: 'google', precise: true, autoSites: [] };
 const $ = (id) => document.getElementById(id);
+const t = (key) => chrome.i18n.getMessage(key) || key;
+const ALL_SITES = { origins: ['<all_urls>'] };
 
 (async () => {
+  // Firefox : l'accès aux sites doit parfois être accordé à la main.
+  if (!(await chrome.permissions.contains(ALL_SITES))) {
+    $('grant').hidden = false;
+    $('grant').addEventListener('click', async () => {
+      if (await chrome.permissions.request(ALL_SITES)) $('grant').hidden = true;
+    });
+  }
+
   const s = await chrome.storage.sync.get(DEFAULTS);
   for (const id of ['ocrLang', 'targetLang', 'engine', 'precise']) {
     const el = $(id);
@@ -34,12 +44,12 @@ async function command(cmd) {
   if (!tab?.id) return;
   const res = await chrome.runtime.sendMessage({ target: 'background', type: 'popup-command', tabId: tab.id, command: cmd });
   if (res?.ok) window.close();
-  else $('msg').textContent = 'Impossible sur cette page (pages du navigateur, boutique d’extensions…).';
+  else $('msg').textContent = t('popupCannot');
 }
 
 $('page').addEventListener('click', () => command('translate-page'));
 $('clear').addEventListener('click', () => command('clear'));
 $('clearCache').addEventListener('click', async () => {
   await chrome.runtime.sendMessage({ target: 'background', type: 'clear-cache' });
-  $('clearCache').textContent = 'Cache vidé';
+  $('clearCache').textContent = t('popupCacheCleared');
 });

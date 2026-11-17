@@ -1,71 +1,86 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html>
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Traducteur de bulles</title>
 <style>
-  body { width: 290px; margin: 0; padding: 14px; font: 13px/1.4 system-ui, sans-serif; color: #1d1d1f; }
-  h1 { font-size: 15px; margin: 0 0 12px; }
+  :root { color-scheme: light dark; --accent: #1a73e8; --muted: #666; --bg2: #eee; }
+  @media (prefers-color-scheme: dark) { :root { --muted: #aaa; --bg2: #333; } }
+  body { min-width: 290px; max-width: 420px; margin: 0; padding: 14px; font: 14px/1.4 system-ui, sans-serif; }
+  h1 { font-size: 16px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+  h1 img { width: 22px; height: 22px; }
   label { display: block; margin: 0 0 10px; font-weight: 600; }
-  select { display: block; width: 100%; margin-top: 4px; padding: 5px; font: inherit; font-weight: 400; }
-  button { width: 100%; padding: 8px; margin-top: 6px; font: inherit; font-weight: 600; border: 0; border-radius: 6px; cursor: pointer; }
-  #page { background: #1a73e8; color: #fff; }
-  #clear { background: #eee; color: #333; }
-  p { margin: 12px 0 0; color: #666; font-size: 12px; }
-  #msg { color: #a00; }
-  label.check { display: flex; gap: 6px; align-items: center; font-weight: 400; }
+  select { display: block; width: 100%; margin-top: 4px; padding: 6px; font: inherit; font-weight: 400; }
+  button { width: 100%; padding: 10px; margin-top: 6px; font: inherit; font-weight: 600; border: 0; border-radius: 8px; cursor: pointer; }
+  .primary { background: var(--accent); color: #fff; }
+  .secondary { background: var(--bg2); color: inherit; }
+  #grant { background: #d93025; color: #fff; }
+  p { margin: 12px 0 0; color: var(--muted); font-size: 12px; }
+  #msg { color: #d93025; }
+  label.check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
   #host { font-weight: 600; word-break: break-all; }
-  a { color: #1a73e8; cursor: pointer; }
+  a { color: var(--accent); cursor: pointer; }
 </style>
 </head>
 <body>
-  <h1>Traducteur de bulles</h1>
-  <label>Langue du texte dans l'image
+  <h1><img src="icons/icon48.png" alt=""><span data-i18n="extName">Traducteur de bulles</span></h1>
+  <button id="grant" hidden data-i18n="popupGrant"></button>
+  <label><span data-i18n="popupOcrLang"></span>
     <select id="ocrLang">
-      <option value="auto">Automatique (selon la page)</option>
-      <option value="eng">Anglais</option>
-      <option value="jpn_vert">Japonais (vertical, manga)</option>
-      <option value="jpn">Japonais (horizontal)</option>
-      <option value="kor">Coréen (webtoon)</option>
-      <option value="chi_sim">Chinois simplifié (manhua)</option>
-      <option value="chi_tra">Chinois traditionnel</option>
-      <option value="fra">Français</option>
-      <option value="spa">Espagnol</option>
-      <option value="deu">Allemand</option>
-      <option value="ita">Italien</option>
-      <option value="por">Portugais</option>
-      <option value="rus">Russe</option>
+      <option value="auto" data-i18n="langAuto"></option>
+      <option value="eng" data-i18n="langEng"></option>
+      <option value="jpn_vert" data-i18n="langJpnVert"></option>
+      <option value="jpn" data-i18n="langJpn"></option>
+      <option value="kor" data-i18n="langKor"></option>
+      <option value="chi_sim" data-i18n="langChiSim"></option>
+      <option value="chi_tra" data-i18n="langChiTra"></option>
+      <option value="fra" data-i18n="langFra"></option>
+      <option value="spa" data-i18n="langSpa"></option>
+      <option value="deu" data-i18n="langDeu"></option>
+      <option value="ita" data-i18n="langIta"></option>
+      <option value="por" data-i18n="langPor"></option>
+      <option value="rus" data-i18n="langRus"></option>
     </select>
   </label>
-  <label>Traduire en
+  <label><span data-i18n="popupTarget"></span>
     <select id="targetLang">
-      <option value="fr">Français</option>
-      <option value="en">Anglais</option>
-      <option value="es">Espagnol</option>
-      <option value="de">Allemand</option>
-      <option value="it">Italien</option>
-      <option value="pt">Portugais</option>
-      <option value="ar">Arabe</option>
+      <option value="fr" data-i18n="tgtFr"></option>
+      <option value="en" data-i18n="tgtEn"></option>
+      <option value="es" data-i18n="tgtEs"></option>
+      <option value="de" data-i18n="tgtDe"></option>
+      <option value="it" data-i18n="tgtIt"></option>
+      <option value="pt" data-i18n="tgtPt"></option>
+      <option value="ar" data-i18n="tgtAr"></option>
+      <option value="ru" data-i18n="tgtRu"></option>
+      <option value="tr" data-i18n="tgtTr"></option>
+      <option value="id" data-i18n="tgtId"></option>
+      <option value="vi" data-i18n="tgtVi"></option>
+      <option value="ja" data-i18n="tgtJa"></option>
+      <option value="ko" data-i18n="tgtKo"></option>
     </select>
   </label>
-  <label>Service de traduction (gratuit, sans clé)
+  <label><span data-i18n="popupEngine"></span>
     <select id="engine">
-      <option value="google">Google Traduction</option>
-      <option value="mymemory">MyMemory</option>
+      <option value="google" data-i18n="engGoogle"></option>
+      <option value="mymemory" data-i18n="engMyMemory"></option>
     </select>
   </label>
-  <label>Précision de lecture
+  <label><span data-i18n="popupPrecision"></span>
     <select id="precise">
-      <option value="true">Précise (recommandé)</option>
-      <option value="false">Rapide</option>
+      <option value="true" data-i18n="precPrecise"></option>
+      <option value="false" data-i18n="precFast"></option>
     </select>
   </label>
-  <label class="check"><input type="checkbox" id="autoSite"> Traduire automatiquement sur <span id="host">ce site</span></label>
-  <button id="page">Traduire toutes les images de la page</button>
-  <button id="clear">Effacer les traductions</button>
+  <label class="check"><input type="checkbox" id="autoSite">
+    <span><span data-i18n="popupAutoSite"></span> <span id="host" data-i18n="popupThisSite"></span></span></label>
+  <button id="page" class="primary" data-i18n="popupTranslatePage"></button>
+  <button id="clear" class="secondary" data-i18n="popupClear"></button>
   <p id="msg"></p>
-  <p>Pour une seule image : clic droit dessus, puis « Traduire les bulles de cette image ». Raccourci page entière : Alt+T.</p>
-  <p>Le premier usage d'une langue télécharge ses données OCR (quelques Mo), ensuite tout reste en cache. Les pages déjà traduites s'affichent instantanément. <a id="clearCache">Vider le cache</a></p>
+  <p data-i18n="popupHint"></p>
+  <p><span data-i18n="popupHintCache"></span> <a id="clearCache" data-i18n="popupClearCache"></a></p>
+  <p><a id="app" href="https://no6b.github.io/traducteur-bulles/app/" target="_blank" data-i18n="popupApp"></a></p>
+  <script src="i18n.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
