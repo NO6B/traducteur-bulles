@@ -13,12 +13,16 @@
   #clear { background: #eee; color: #333; }
   p { margin: 12px 0 0; color: #666; font-size: 12px; }
   #msg { color: #a00; }
+  label.check { display: flex; gap: 6px; align-items: center; font-weight: 400; }
+  #host { font-weight: 600; word-break: break-all; }
+  a { color: #1a73e8; cursor: pointer; }
 </style>
 </head>
 <body>
   <h1>Traducteur de bulles</h1>
   <label>Langue du texte dans l'image
     <select id="ocrLang">
+      <option value="auto">Automatique (selon la page)</option>
       <option value="eng">Anglais</option>
       <option value="jpn_vert">Japonais (vertical, manga)</option>
       <option value="jpn">Japonais (horizontal)</option>
@@ -50,11 +54,18 @@
       <option value="mymemory">MyMemory</option>
     </select>
   </label>
+  <label>Précision de lecture
+    <select id="precise">
+      <option value="true">Précise (recommandé)</option>
+      <option value="false">Rapide</option>
+    </select>
+  </label>
+  <label class="check"><input type="checkbox" id="autoSite"> Traduire automatiquement sur <span id="host">ce site</span></label>
   <button id="page">Traduire toutes les images de la page</button>
   <button id="clear">Effacer les traductions</button>
   <p id="msg"></p>
   <p>Pour une seule image : clic droit dessus, puis « Traduire les bulles de cette image ». Raccourci page entière : Alt+T.</p>
-  <p>Le premier usage d'une langue télécharge ses données OCR (quelques Mo), ensuite tout reste en cache.</p>
+  <p>Le premier usage d'une langue télécharge ses données OCR (quelques Mo), ensuite tout reste en cache. Les pages déjà traduites s'affichent instantanément. <a id="clearCache">Vider le cache</a></p>
   <script src="popup.js"></script>
 </body>
 </html>

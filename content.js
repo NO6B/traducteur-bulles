@@ -17,7 +17,19 @@
 
   const send = (msg) =>
     chrome.runtime.sendMessage({ target: 'background', ...msg })
-      .catch((e) => ({ ok: false, error: String(e.message || e) }));
+      .catch((e) => ({
+        ok: false,
+        fatal: /context invalidated/i.test(String(e.message)),
+        error: /context invalidated/i.test(String(e.message))
+          ? 'extension mise à jour, recharge la page' : String(e.message || e),
+      }));
+
+  const pageLang = () =>
+    document.documentElement.lang
+    || document.querySelector('meta[http-equiv="content-language" i]')?.content
+    || '';
+
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
   const nextFrames = (n) => new Promise((r) => {
     const step = () => (n-- <= 0 ? r() : requestAnimationFrame(step));
@@ -35,13 +47,15 @@
       position: absolute; box-sizing: border-box; pointer-events: auto; cursor: pointer;
       display: flex; align-items: center; justify-content: center; text-align: center;
       background: #fff; color: #111; border-radius: 10px; padding: 2px 3px; overflow: hidden;
+      transition: opacity .15s;
       font-family: "Comic Neue", "Comic Sans MS", "Chalkboard SE", "Segoe UI", system-ui, sans-serif;
       font-weight: 700; line-height: 1.12; box-shadow: 0 0 0 1px rgba(0,0,0,.08);
     }
     .box > div { width: 100%; overflow-wrap: normal; hyphens: auto; }
     .box.wrap > div { overflow-wrap: anywhere; }
-    .box.err { background: #fff4f4; color: #a00; font-weight: 400; }
-    .box.off { background: transparent; color: transparent; box-shadow: inset 0 0 0 1px rgba(255,80,0,.7); }
+    .box.dark { color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
+    .box.err { box-shadow: inset 0 0 0 2px rgba(220,0,0,.6); font-weight: 400; }
+    .box.off { background: transparent !important; color: transparent; box-shadow: inset 0 0 0 1px rgba(255,80,0,.7); }
     .hidden .box { display: none; }
     .bar {
       position: absolute; top: 4px; left: 4px; display: flex; gap: 4px; align-items: center;
@@ -55,6 +69,7 @@
       font: 12px/1.2 system-ui, sans-serif; color: #fff;
     }
     .bar button:hover { background: rgba(255,255,255,.3); }
+    .bar button[hidden] { display: none; }
     .spin { width: 10px; height: 10px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff;
       border-radius: 50%; animation: s .8s linear infinite; flex: none; }
     @keyframes s { to { transform: rotate(360deg); } }
@@ -69,6 +84,7 @@
     const root = host.attachShadow({ mode: 'open' });
     root.innerHTML = `<style>${CSS}</style><div class="layer"></div>
       <div class="bar"><span class="spin"></span><span class="status"></span>
+      <button class="retry" hidden>Réessayer</button>
       <button class="toggle" hidden>Original</button><button class="close" title="Retirer">✕</button></div>`;
     document.documentElement.appendChild(host);
 
@@ -78,6 +94,7 @@
       status: root.querySelector('.status'),
       spin: root.querySelector('.spin'),
       toggle: root.querySelector('.toggle'),
+      retry: root.querySelector('.retry'),
     };
     st.setStatus = (text, busy = true) => {
       st.status.textContent = text;
@@ -88,6 +105,7 @@
       st.toggle.textContent = hidden ? 'Traduction' : 'Original';
     });
     root.querySelector('.close').addEventListener('click', () => removeState(img));
+    st.retry.addEventListener('click', () => processImage(img, { force: true }));
     states.set(img, st);
     place(st);
     return st;
@@ -144,8 +162,27 @@
   addEventListener('resize', placeAll, { passive: true });
   setInterval(() => states.size && placeAll(), 600);
 
-  // Ajuste la taille de police pour que la traduction tienne dans la bulle.
+  // Ajuste la taille de police pour que la traduction tienne dans la bulle ;
+  // si elle deviendrait illisible, le cadre s'élargit un peu (il reste dans la bulle d'origine en général).
   function fit(box) {
+    for (const grow of [1, 1.25, 1.5]) {
+      setGeometry(box, grow);
+      if (fitFont(box) >= 11) return;
+    }
+  }
+
+  function setGeometry(box, grow) {
+    const g = JSON.parse(box.dataset.geo);
+    const w = Math.min(1, g.w * grow), h = Math.min(1, g.h * (1 + (grow - 1) * 0.6));
+    const x = Math.min(Math.max(0, g.x - (w - g.w) / 2), 1 - w);
+    const y = Math.min(Math.max(0, g.y - (h - g.h) / 2), 1 - h);
+    box.style.left = `${x * 100}%`;
+    box.style.top = `${y * 100}%`;
+    box.style.width = `${w * 100}%`;
+    box.style.height = `${h * 100}%`;
+  }
+
+  function fitFont(box) {
     const inner = box.firstChild;
     const availH = box.clientHeight - 4;
     box.classList.remove('wrap');
@@ -158,6 +195,7 @@
     }
     inner.style.fontSize = `${lo}px`;
     if (inner.scrollWidth > inner.clientWidth + 1) box.classList.add('wrap');
+    return lo;
   }
 
   function render(st, bubbles, region, append = false) {
@@ -172,11 +210,11 @@
       const w = b.w * region.w + 2 * padX;
       const h = b.h * region.h + 2 * padY;
       const box = document.createElement('div');
-      box.className = 'box' + (b.translation ? '' : ' err');
-      box.style.left = `${Math.max(0, x) * 100}%`;
-      box.style.top = `${Math.max(0, y) * 100}%`;
-      box.style.width = `${Math.min(1 - Math.max(0, x), w) * 100}%`;
-      box.style.height = `${Math.min(1 - Math.max(0, y), h) * 100}%`;
+      box.className = 'box' + (b.translation ? '' : ' err') + (b.dark ? ' dark' : '');
+      if (b.bg) box.style.background = b.bg;
+      const gx = Math.max(0, x), gy = Math.max(0, y);
+      box.dataset.geo = JSON.stringify({ x: gx, y: gy, w: Math.min(1 - gx, w), h: Math.min(1 - gy, h) });
+      setGeometry(box, 1);
       box.title = `Original : ${b.text}\n(clic : afficher / masquer)`;
       const inner = document.createElement('div');
       inner.textContent = b.translation || b.text;
@@ -218,6 +256,7 @@
     st.host.style.visibility = 'hidden';
     await nextFrames(2);
     const res = await send({
+      pageLang: pageLang(),
       type: 'process-capture',
       rect: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 },
       dpr: devicePixelRatio,
@@ -258,7 +297,7 @@
     st.toggle.hidden = !st.count;
   }
 
-  async function processImage(img) {
+  async function processImage(img, { force = false } = {}) {
     if (states.has(img)) {
       if (states.get(img).busy) return;
       removeState(img);
@@ -267,13 +306,19 @@
     st.setStatus('Lecture du texte…');
     let region = { x: 0, y: 0, w: 1, h: 1 };
     let res;
+    const url = srcOf(img);
+    const key = /^https?:/i.test(url) && !force ? url : null; // clé du cache (pages déjà traduites)
+    const common = { key, pageLang: pageLang() };
 
     const dataUrl = canvasDataUrl(img);
     if (dataUrl) {
-      res = await send({ type: 'process', source: { dataUrl } });
+      res = await send({ type: 'process', source: { dataUrl }, ...common });
+      if (!res?.ok && !res?.fatal) { // échec passager : une nouvelle tentative
+        await sleep(1500);
+        res = await send({ type: 'process', source: { dataUrl }, ...common });
+      }
     } else {
-      const url = srcOf(img);
-      if (/^https?:/i.test(url)) res = await send({ type: 'process', source: { url } });
+      if (/^https?:/i.test(url)) res = await send({ type: 'process', source: { url }, ...common });
       // Dernier recours : capture d'écran de la partie visible de l'image.
       if (!res?.ok && window === window.top) {
         const cap = await captureVisible(st);
@@ -288,6 +333,7 @@
     st.busy = false;
     if (!res?.ok) {
       st.setStatus(`Erreur : ${res?.error || 'image illisible'}`, false);
+      st.retry.hidden = !!res?.fatal;
       return;
     }
     const n = res.bubbles.length;
@@ -302,6 +348,8 @@
     st.lastStatus = `${n} bulle${n > 1 ? 's' : ''}${failed ? ` (${failed} non traduite${failed > 1 ? 's' : ''})` : ''}`;
     st.setStatus(st.lastStatus, false);
     st.toggle.hidden = !n;
+    st.retry.hidden = !failed && !res.error;
+    if (res.error) st.status.title = `Traduction : ${res.error}`;
   }
 
   // ---------- Mode page entière (avec images chargées au défilement) ----------
@@ -312,16 +360,24 @@
     return r.width >= 120 && r.height >= 120;
   }
 
+  const progress = (n) => send({ type: 'progress', pending: n });
+
   function enqueue(img) {
     if (!queue.includes(img)) queue.push(img);
+    progress(queue.length + (running ? 1 : 0));
     if (running) return;
     running = true;
     (async () => {
       while (queue.length) {
+        // Priorité à l'image la plus proche de l'écran.
+        const dist = (i) => Math.abs(i.getBoundingClientRect().top);
+        queue.sort((a, b) => dist(a) - dist(b));
         const next = queue.shift();
+        progress(queue.length + 1);
         if (pageMode && next.isConnected && eligible(next)) await processImage(next);
       }
       running = false;
+      progress(0);
     })();
   }
 
@@ -346,7 +402,7 @@
           enqueue(e.target);
         }
       }
-    }, { rootMargin: '600px 0px' });
+    }, { rootMargin: '1500px 0px' }); // préchargement : traduit avant que l'image n'arrive à l'écran
     let t = null;
     mo = new MutationObserver(() => {
       clearTimeout(t);
@@ -362,6 +418,7 @@
     mo?.disconnect();
     io = mo = null;
     queue.length = 0;
+    progress(0);
     [...states.keys()].forEach(removeState);
   }
 
