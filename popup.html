@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Traducteur de bulles</title>
+<style>
+  body { width: 290px; margin: 0; padding: 14px; font: 13px/1.4 system-ui, sans-serif; color: #1d1d1f; }
+  h1 { font-size: 15px; margin: 0 0 12px; }
+  label { display: block; margin: 0 0 10px; font-weight: 600; }
+  select { display: block; width: 100%; margin-top: 4px; padding: 5px; font: inherit; font-weight: 400; }
+  button { width: 100%; padding: 8px; margin-top: 6px; font: inherit; font-weight: 600; border: 0; border-radius: 6px; cursor: pointer; }
+  #page { background: #1a73e8; color: #fff; }
+  #clear { background: #eee; color: #333; }
+  p { margin: 12px 0 0; color: #666; font-size: 12px; }
+  #msg { color: #a00; }
+</style>
+</head>
+<body>
+  <h1>Traducteur de bulles</h1>
+  <label>Langue du texte dans l'image
+    <select id="ocrLang">
+      <option value="eng">Anglais</option>
+      <option value="jpn_vert">Japonais (vertical, manga)</option>
+      <option value="jpn">Japonais (horizontal)</option>
+      <option value="kor">Coréen (webtoon)</option>
+      <option value="chi_sim">Chinois simplifié (manhua)</option>
+      <option value="chi_tra">Chinois traditionnel</option>
+      <option value="fra">Français</option>
+      <option value="spa">Espagnol</option>
+      <option value="deu">Allemand</option>
+      <option value="ita">Italien</option>
+      <option value="por">Portugais</option>
+      <option value="rus">Russe</option>
+    </select>
+  </label>
+  <label>Traduire en
+    <select id="targetLang">
+      <option value="fr">Français</option>
+      <option value="en">Anglais</option>
+      <option value="es">Espagnol</option>
+      <option value="de">Allemand</option>
+      <option value="it">Italien</option>
+      <option value="pt">Portugais</option>
+      <option value="ar">Arabe</option>
+    </select>
+  </label>
+  <label>Service de traduction (gratuit, sans clé)
+    <select id="engine">
+      <option value="google">Google Traduction</option>
+      <option value="mymemory">MyMemory</option>
+    </select>
+  </label>
+  <button id="page">Traduire toutes les images de la page</button>
+  <button id="clear">Effacer les traductions</button>
+  <p id="msg"></p>
+  <p>Pour une seule image : clic droit dessus, puis « Traduire les bulles de cette image ». Raccourci page entière : Alt+T.</p>
+  <p>Le premier usage d'une langue télécharge ses données OCR (quelques Mo), ensuite tout reste en cache.</p>
+  <script src="popup.js"></script>
+</body>
+</html>
