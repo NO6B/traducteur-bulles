@@ -28,6 +28,56 @@
   const queue = [];
   let running = false;
 
+  // Suivi de progression pour le bandeau en bas à droite
+  let hud = null;
+  const trackedImgs = new Set();
+  const doneImgs = new Set();
+
+  function updateHud() {
+    if (!pageMode || !trackedImgs.size) return removeHud();
+    if (!hud) {
+      const host = document.createElement('div');
+      host.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:2147483647;margin:0;padding:0;border:0;';
+      const root = host.attachShadow({ mode: 'open' });
+      root.innerHTML = `
+        <style>
+          :host { all: initial; }
+          .hud {
+            display: flex; flex-direction: column; gap: 6px; min-width: 175px;
+            background: rgba(20, 20, 20, .9); color: #fff; padding: 10px 12px;
+            border-radius: 10px; font: 600 13px/1.2 system-ui, sans-serif;
+            box-shadow: 0 4px 14px rgba(0,0,0,.35); backdrop-filter: blur(4px);
+          }
+          .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+          .close { all: unset; cursor: pointer; opacity: .7; font-size: 14px; padding: 0 2px; }
+          .close:hover { opacity: 1; }
+          .track { width: 100%; height: 6px; background: rgba(255,255,255,.2); border-radius: 99px; overflow: hidden; }
+          .fill { height: 100%; width: 0%; background: #4ade80; transition: width .25s ease; }
+        </style>
+        <div class="hud">
+          <div class="row"><span class="txt"></span><button class="close" title="Masquer">✕</button></div>
+          <div class="track"><div class="fill"></div></div>
+        </div>
+      `;
+      root.querySelector('.close').addEventListener('click', () => { host.style.display = 'none'; });
+      document.documentElement.appendChild(host);
+      hud = { host, txt: root.querySelector('.txt'), fill: root.querySelector('.fill') };
+    }
+    const total = trackedImgs.size;
+    const done = Math.min(doneImgs.size, total);
+    const pct = Math.round((done / total) * 100);
+    hud.txt.textContent = pct === 100
+      ? `Prêt : 100% (${done}/${total})`
+      : `Traduction : ${pct}% (${done}/${total})`;
+    hud.fill.style.width = `${pct}%`;
+  }
+
+  function removeHud() {
+    if (!hud) return;
+    hud.host.remove();
+    hud = null;
+  }
+
   document.addEventListener('contextmenu', (e) => {
     lastContextTarget = e.target instanceof HTMLImageElement ? e.target : null;
   }, true);
@@ -400,8 +450,10 @@
   const progress = (n) => send({ type: 'progress', pending: n });
 
   function enqueue(img) {
+    trackedImgs.add(img);
     if (!queue.includes(img)) queue.push(img);
     progress(queue.length + (running ? 1 : 0));
+    updateHud();
     if (running) return;
     running = true;
     (async () => {
@@ -412,9 +464,12 @@
         const next = queue.shift();
         progress(queue.length + 1);
         if (pageMode && next.isConnected && eligible(next)) await processImage(next);
+        doneImgs.add(next);
+        updateHud();
       }
       running = false;
       progress(0);
+      updateHud();
     })();
   }
 
@@ -460,6 +515,9 @@
     mo?.disconnect();
     io = mo = null;
     queue.length = 0;
+    trackedImgs.clear();
+    doneImgs.clear();
+    removeHud();
     progress(0);
     [...states.keys()].forEach(removeState);
   }
