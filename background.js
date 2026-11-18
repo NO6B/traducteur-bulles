@@ -98,6 +98,8 @@ async function setReferer(imageUrl, pageUrl) {
           requestHeaders: [
             { header: 'referer', operation: 'set', value: pageUrl },
             { header: 'origin', operation: 'remove' },
+            { header: 'sec-fetch-dest', operation: 'set', value: 'image' },
+            { header: 'sec-fetch-mode', operation: 'set', value: 'no-cors' },
           ],
         },
         condition: {
