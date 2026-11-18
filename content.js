@@ -411,10 +411,16 @@
 
   function watchImage(img) {
     if (!pageMode || states.has(img)) return;
-    if (img.loading === 'lazy') img.loading = 'eager';
-    const lazySrc = img.dataset.src || img.dataset.lazySrc || img.dataset.original || img.getAttribute('data-url');
-    if (lazySrc && !img.src.includes(lazySrc)) {
+    if (img.loading === 'lazy') {
+      img.loading = 'eager';
+      img.removeAttribute('loading');
+    }
+    const rawLazy = img.dataset.src || img.dataset.lazySrc || img.dataset.original || img.getAttribute('data-url');
+    const lazySrc = rawLazy ? rawLazy.trim() : '';
+    if (lazySrc && img.src !== lazySrc) {
       img.src = lazySrc;
+      img.classList.remove('lazyload');
+      img.classList.add('lazyloaded');
     }
     if (eligible(img)) {
       enqueue(img);
