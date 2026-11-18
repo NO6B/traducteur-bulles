@@ -158,6 +158,11 @@
     const visible = r.width > 0 && r.height > 0 && r.bottom > -200 && r.top < innerHeight + 200;
     host.style.display = visible ? '' : 'none';
     if (!visible) return;
+    if (st.waitVisible && !st.busy && Math.min(innerHeight, r.bottom) - Math.max(0, r.top) >= 50) {
+      st.waitVisible = false;
+      processImage(img, { force: true });
+      return;
+    }
     host.style.transform = `translate(${r.left}px, ${r.top}px)`;
     host.style.width = `${r.width}px`;
     host.style.height = `${r.height}px`;
@@ -353,6 +358,10 @@
         if (cap) {
           ({ res, region } = cap);
           st.covered = cap.covered;
+        } else if (String(res?.error || '').startsWith('E_FETCH')) {
+          st.busy = false;
+          st.waitVisible = true;
+          return;
         }
       }
     }
