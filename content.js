@@ -43,7 +43,7 @@
         <style>
           :host { all: initial; }
           .hud {
-            display: flex; flex-direction: column; gap: 6px; min-width: 175px;
+            display: flex; flex-direction: column; gap: 6px; min-width: 185px;
             background: rgba(20, 20, 20, .9); color: #fff; padding: 10px 12px;
             border-radius: 10px; font: 600 13px/1.2 system-ui, sans-serif;
             box-shadow: 0 4px 14px rgba(0,0,0,.35); backdrop-filter: blur(4px);
@@ -65,10 +65,15 @@
     }
     const total = trackedImgs.size;
     const done = Math.min(doneImgs.size, total);
+    const waiting = [...states.values()].filter((s) => s.waitVisible).length;
     const pct = Math.round((done / total) * 100);
-    hud.txt.textContent = pct === 100
-      ? `Prêt : 100% (${done}/${total})`
-      : `Traduction : ${pct}% (${done}/${total})`;
+    if (pct === 100) {
+      hud.txt.textContent = `Prêt : 100% (${done}/${total})`;
+    } else if (!running && waiting > 0) {
+      hud.txt.textContent = `${pct}% (${done}/${total}) · ${waiting} au défilement`;
+    } else {
+      hud.txt.textContent = `Traduction : ${pct}% (${done}/${total})`;
+    }
     hud.fill.style.width = `${pct}%`;
   }
 
@@ -147,7 +152,7 @@
 
   function createOverlay(img) {
     const host = document.createElement('div');
-    host.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;z-index:2147483646;pointer-events:none;margin:0;padding:0;border:0;';
+    host.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;z-index:2147483646;pointer-events:none;margin:0;padding:0;border:0;';
     const root = host.attachShadow({ mode: 'open' });
     const el = (tag, cls, text) => {
       const e = document.createElement(tag);
@@ -205,15 +210,12 @@
       return;
     }
     const r = img.getBoundingClientRect();
-    const visible = r.width > 0 && r.height > 0 && r.bottom > -200 && r.top < innerHeight + 200;
-    host.style.display = visible ? '' : 'none';
-    if (!visible) return;
-    if (st.waitVisible && !st.busy && Math.min(innerHeight, r.bottom) - Math.max(0, r.top) >= 50) {
-      st.waitVisible = false;
-      processImage(img, { force: true });
+    if (r.width <= 0 || r.height <= 0) {
+      host.style.display = 'none';
       return;
     }
-    host.style.transform = `translate(${r.left}px, ${r.top}px)`;
+    host.style.display = '';
+    host.style.transform = `translate(${r.left + scrollX}px, ${r.top + scrollY}px)`;
     host.style.width = `${r.width}px`;
     host.style.height = `${r.height}px`;
     if (Math.abs(r.width - st.lastW) > 1 || Math.abs(r.height - st.lastH) > 1) {
@@ -221,7 +223,15 @@
       st.lastH = r.height;
       st.layer.querySelectorAll('.box').forEach(fit);
     }
-    if (st.covered && !st.busy) {
+    if (st.waitVisible && !st.busy && Math.min(innerHeight, r.bottom) - Math.max(0, r.top) >= 50) {
+      st.waitVisible = false;
+      processImage(img, { force: true }).then(() => {
+        if (!states.get(img)?.waitVisible) doneImgs.add(img);
+        updateHud();
+      });
+      return;
+    }
+    if (st.covered && !st.busy && r.bottom > 0 && r.top < innerHeight) {
       const v0 = Math.max(0, -r.top) / r.height;
       const v1 = Math.min(r.height, innerHeight - r.top) / r.height;
       const uncovered = Math.max(0, st.covered[0] - v0) + Math.max(0, v1 - st.covered[1]);
@@ -466,7 +476,7 @@
         const next = queue.shift();
         progress(queue.length + 1);
         if (pageMode && next.isConnected && eligible(next)) await processImage(next);
-        doneImgs.add(next);
+        if (!states.get(next)?.waitVisible) doneImgs.add(next);
         updateHud();
       }
       running = false;
