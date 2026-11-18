@@ -87,7 +87,8 @@ async function runOcr(source, crop, lang, precise, engine) {
 async function setReferer(imageUrl, pageUrl) {
   try {
     const host = new URL(imageUrl).hostname;
-    if (!host || !pageUrl) return;
+    const referer = new URL(pageUrl).origin + '/';
+    if (!host || !referer) return;
     await chrome.declarativeNetRequest.updateSessionRules({
       removeRuleIds: [1],
       addRules: [{
@@ -96,15 +97,13 @@ async function setReferer(imageUrl, pageUrl) {
         action: {
           type: 'modifyHeaders',
           requestHeaders: [
-            { header: 'referer', operation: 'set', value: pageUrl },
+            { header: 'referer', operation: 'set', value: referer },
             { header: 'origin', operation: 'remove' },
-            { header: 'sec-fetch-dest', operation: 'set', value: 'image' },
-            { header: 'sec-fetch-mode', operation: 'set', value: 'no-cors' },
           ],
         },
         condition: {
           requestDomains: [host],
-          tabIds: [chrome.tabs.TAB_ID_NONE],
+          initiatorDomains: [chrome.runtime.id],
           resourceTypes: ['xmlhttprequest', 'other', 'image'],
         },
       }],
