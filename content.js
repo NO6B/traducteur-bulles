@@ -410,10 +410,13 @@
   }
 
   function watchImage(img) {
-    if (!io) return;
-    io.unobserve(img);
-    io.observe(img);
-    if (!img.complete) img.addEventListener('load', () => watchImage(img), { once: true });
+    if (!pageMode || states.has(img)) return;
+    if (img.loading === 'lazy') img.loading = 'eager';
+    if (eligible(img)) {
+      enqueue(img);
+    } else if (!img.complete) {
+      img.addEventListener('load', () => watchImage(img), { once: true });
+    }
   }
 
   function scan() {
@@ -423,14 +426,6 @@
   function startPageMode() {
     if (pageMode) return scan();
     pageMode = true;
-    io = new IntersectionObserver((entries) => {
-      for (const e of entries) {
-        if (e.isIntersecting && eligible(e.target)) {
-          io.unobserve(e.target);
-          enqueue(e.target);
-        }
-      }
-    }, { rootMargin: '1500px 0px' }); // préchargement : traduit avant que l'image n'arrive à l'écran
     let t = null;
     mo = new MutationObserver(() => {
       clearTimeout(t);
