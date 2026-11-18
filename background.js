@@ -95,9 +95,16 @@ async function setReferer(imageUrl, pageUrl) {
         priority: 1,
         action: {
           type: 'modifyHeaders',
-          requestHeaders: [{ header: 'referer', operation: 'set', value: pageUrl }],
+          requestHeaders: [
+            { header: 'referer', operation: 'set', value: pageUrl },
+            { header: 'origin', operation: 'remove' },
+          ],
         },
-        condition: { requestDomains: [host], tabIds: [chrome.tabs.TAB_ID_NONE] },
+        condition: {
+          requestDomains: [host],
+          tabIds: [chrome.tabs.TAB_ID_NONE],
+          resourceTypes: ['xmlhttprequest', 'other', 'image'],
+        },
       }],
     });
   } catch (e) {
