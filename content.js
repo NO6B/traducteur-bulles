@@ -338,12 +338,14 @@
     st.setStatus(t('stCapture'));
     st.host.style.visibility = 'hidden';
     await nextFrames(2);
+    const restoreTimer = setTimeout(() => { st.host.style.visibility = ''; }, 250);
     const res = await send({
       pageLang: pageLang(),
       type: 'process-capture',
       rect: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 },
       dpr: devicePixelRatio,
     });
+    clearTimeout(restoreTimer);
     st.host.style.visibility = '';
     const region = { x: (x0 - r.left) / r.width, y: (y0 - r.top) / r.height, w: (x1 - x0) / r.width, h: (y1 - y0) / r.height };
     // Près d'un bord coupé par l'écran, les bulles peuvent être tronquées : on ne garde que
