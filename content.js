@@ -412,6 +412,10 @@
   function watchImage(img) {
     if (!pageMode || states.has(img)) return;
     if (img.loading === 'lazy') img.loading = 'eager';
+    const lazySrc = img.dataset.src || img.dataset.lazySrc || img.dataset.original || img.getAttribute('data-url');
+    if (lazySrc && !img.src.includes(lazySrc)) {
+      img.src = lazySrc;
+    }
     if (eligible(img)) {
       enqueue(img);
     } else if (!img.complete) {
