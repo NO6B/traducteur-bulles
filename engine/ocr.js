@@ -1,9 +1,10 @@
 // Moteur OCR commun (extension et application web) : Tesseract.js exécuté localement.
-// Expose globalThis.TBOcr = { configure, run, reset }.
+// Expose globalThis.TBOcr = { configure, run, reset } et globalThis.TBOcrUtil (outils partagés).
 /* global Tesseract */
 (() => {
 
 const CJK_LANGS = new Set(['jpn', 'jpn_vert', 'chi_sim', 'chi_tra', 'kor']);
+const NO_SPACE_LANGS = new Set(['jpn', 'jpn_vert', 'chi_sim', 'chi_tra']); // le coréen garde ses espaces
 const TILE_H = 3000;      // hauteur max d'une tuile (px après mise à l'échelle)
 const TILE_OVERLAP = 300; // recouvrement entre tuiles (webtoons très hauts)
 // Petits mots courants, par langue : acceptés même avec une confiance moyenne.
@@ -165,7 +166,7 @@ function tidy(text) {
 }
 
 function joinLines(lines, lang, vertical) {
-  const cjk = CJK_LANGS.has(lang);
+  const cjk = NO_SPACE_LANGS.has(lang);
   const sorted = [...lines].sort((a, b) => (vertical ? b.x0 - a.x0 : a.y0 - b.y0));
   let text = '';
   for (const l of sorted) {
@@ -420,6 +421,12 @@ function run(msg) {
   queue = p.catch(() => {});
   return p;
 }
+
+// Outils partagés avec le moteur PaddleOCR (engine/paddle.js).
+globalThis.TBOcrUtil = { groupLines, joinLines, plausible, sampleBackground, loadBitmap, median, letterCount, CJK_LANGS };
+
+// Outils partagés avec le moteur PaddleOCR (engine/paddle.js).
+globalThis.TBOcrUtil = { groupLines, joinLines, plausible, sampleBackground, loadBitmap, median, letterCount, CJK_LANGS };
 
 globalThis.TBOcr = {
   configure(opts) { config = { ...config, ...opts }; },

@@ -57,6 +57,12 @@
         <option value="ko" data-t="tgtKo">Coréen</option>
       </select>
     </label>
+    <label><span data-t="ocrEngine">Moteur de lecture</span>
+      <select id="ocrEngine">
+        <option value="paddle" data-t="ocrPaddle">PaddleOCR (recommandé)</option>
+        <option value="tesseract" data-t="ocrTesseract">Tesseract (plus léger)</option>
+      </select>
+    </label>
     <label><span data-t="precision">Précision de lecture</span>
       <select id="precise">
         <option value="true" data-t="precPrecise">Précise (recommandé)</option>
@@ -116,7 +122,10 @@
 </template>
 
 <script src="../lib/tesseract.min.js"></script>
+<script src="../lib/ort/ort.wasm.min.js"></script>
 <script src="../engine/ocr.js"></script>
+<script src="../engine/paddle.js"></script>
+<script src="../engine/router.js"></script>
 <script src="../engine/translate.js"></script>
 <script src="../engine/render.js"></script>
 <script src="app.js"></script>

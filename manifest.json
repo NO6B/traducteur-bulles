@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_extName__",
   "short_name": "__MSG_extName__",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "__MSG_extDescription__",
   "default_locale": "en",
   "homepage_url": "https://no6b.github.io/traducteur-bulles/",
@@ -21,7 +21,10 @@
     "service_worker": "background.js",
     "scripts": [
       "lib/tesseract.min.js",
+      "lib/ort/ort.wasm.min.js",
       "engine/ocr.js",
+      "engine/paddle.js",
+      "engine/router.js",
       "engine/translate.js",
       "background.js"
     ]

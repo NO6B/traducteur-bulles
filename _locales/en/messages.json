@@ -135,7 +135,7 @@
   "message": "Single image: right-click it, then “Translate the bubbles in this image”. Whole page: Alt+T."
  },
  "popupHintCache": {
-  "message": "The first use of a language downloads its recognition data (a few MB). Pages already translated then show up instantly."
+  "message": "The first use of a language downloads its recognition models (10 to 25 MB), only once. Pages already translated then show up instantly."
  },
  "popupClearCache": {
   "message": "Clear cache"
@@ -229,5 +229,14 @@
  },
  "welcomePrivacy": {
   "message": "Privacy: text recognition runs on your device. Only the bubble text is sent to the translation service you choose. The extension collects no data."
+ },
+ "popupOcrEngine": {
+  "message": "Text recognition engine"
+ },
+ "ocrPaddle": {
+  "message": "PaddleOCR (recommended)"
+ },
+ "ocrTesseract": {
+  "message": "Tesseract (lighter)"
  }
 }

@@ -16,7 +16,7 @@ async function loadFont(url) {
 
 // Coupe le texte en lignes de largeur maxW (par mot, ou par caractère pour le japonais et le chinois).
 function wrap(ctx, text, maxW, byChar) {
-  const units = byChar ? [...text] : text.split(/\s+/);
+  const units = byChar ? [...text] : text.split(/[ \t\n]+/); // l'espace insécable ne coupe pas
   const sep = byChar ? '' : ' ';
   const lines = [];
   let cur = '';
@@ -71,8 +71,9 @@ function draw(source, bubbles, { targetLang = 'fr' } = {}) {
   const minReadable = Math.max(11, W / 70);
 
   for (const b of bubbles) {
-    const text = b.translation;
-    if (!text) continue;
+    if (!b.translation) continue;
+    // Espace insécable avant « ! ? : ; » et après « « » : la ponctuation ne reste jamais seule sur une ligne.
+    const text = b.translation.replace(/ ([!?:;»])/g, '\u00a0$1').replace(/« /g, '«\u00a0');
     const pad = b.pad * W;
     let x = b.x * W - pad, y = b.y * H - pad, w = b.w * W + 2 * pad, h = b.h * H + 2 * pad;
     // Effacement du texte d'origine (zone d'origine seulement : on ne touche pas au contour de la bulle).

@@ -1,5 +1,5 @@
 // Application web : traduit des images (pages de BD, captures d'écran) sur ordinateur et téléphone.
-/* global TBOcr, TBTranslate, TBRender */
+/* global TBOcrRouter, TBTranslate, TBRender */
 
 // ---------- Textes (français / anglais selon l'appareil) ----------
 
@@ -23,7 +23,8 @@ const I18N = {
     privacy: "La lecture du texte se fait sur ton appareil ; seul le texte des bulles est envoyé au service de traduction.",
     privacyLink: 'Confidentialité', home: 'Extension pour ordinateur',
     waiting: 'En attente…', reading: 'Lecture du texte…',
-    readingFirst: 'Lecture du texte… (1re fois : téléchargement de quelques Mo)',
+    readingFirst: 'Lecture du texte… (1re fois : téléchargement des modèles, 10 à 25 Mo)',
+    ocrEngine: 'Moteur de lecture', ocrPaddle: 'PaddleOCR (recommandé)', ocrTesseract: 'Tesseract (plus léger)',
     translating: 'Traduction…', noText: 'Aucun texte détecté',
     bubbles1: '1 bulle traduite', bubblesN: '{0} bulles traduites', failed: '({0} non traduite(s))',
     error: 'Erreur : {0}', errUnreadable: 'image illisible', errSmall: 'image trop petite', errOcr: 'lecture du texte impossible',
@@ -49,7 +50,8 @@ const I18N = {
     privacy: 'Text recognition runs on your device; only the bubble text is sent to the translation service.',
     privacyLink: 'Privacy', home: 'Desktop extension',
     waiting: 'Waiting…', reading: 'Reading text…',
-    readingFirst: 'Reading text… (first time: downloading a few MB)',
+    readingFirst: 'Reading text… (first time: downloading models, 10 to 25 MB)',
+    ocrEngine: 'Text recognition engine', ocrPaddle: 'PaddleOCR (recommended)', ocrTesseract: 'Tesseract (lighter)',
     translating: 'Translating…', noText: 'No text found',
     bubbles1: '1 bubble translated', bubblesN: '{0} bubbles translated', failed: '({0} not translated)',
     error: 'Error: {0}', errUnreadable: 'image could not be read', errSmall: 'image too small', errOcr: 'text recognition failed',
@@ -69,10 +71,10 @@ for (const el of document.querySelectorAll('[data-t-aria]')) el.setAttribute('ar
 
 const TARGETS = ['fr', 'en', 'es', 'de', 'it', 'pt', 'ar', 'ru', 'tr', 'id', 'vi', 'ja', 'ko'];
 const uiLang = navigator.language.split('-')[0];
-const DEFAULTS = { ocrLang: 'eng', targetLang: TARGETS.includes(uiLang) ? uiLang : 'en', engine: 'google', precise: true };
+const DEFAULTS = { ocrLang: 'eng', targetLang: TARGETS.includes(uiLang) ? uiLang : 'en', engine: 'google', ocrEngine: 'paddle', precise: true };
 let settings = { ...DEFAULTS, ...JSON.parse(localStorage.getItem('tb-settings') || '{}') };
 
-for (const id of ['ocrLang', 'targetLang', 'engine', 'precise']) {
+for (const id of ['ocrLang', 'targetLang', 'engine', 'ocrEngine', 'precise']) {
   const el = document.getElementById(id);
   el.value = String(settings[id]);
   el.addEventListener('change', () => {
@@ -87,11 +89,7 @@ document.getElementById('settingsBtn').addEventListener('click', () => {
 
 // ---------- Moteurs ----------
 
-TBOcr.configure({
-  workerPath: new URL('../lib/worker.min.js', location.href).href,
-  corePath: new URL('../lib/core/', location.href).href,
-  workerBlobURL: false,
-});
+TBOcrRouter.configureFor(new URL('../', location.href).href);
 const fontReady = TBRender.loadFont(new URL('../fonts/comic-neue-700.woff2', location.href).href);
 
 // ---------- Liste des images ----------
@@ -194,9 +192,12 @@ async function processItem(item) {
     item.bitmap ||= await createImageBitmap(item.file);
     show(item, item.bitmap);
     const lang = settings.ocrLang;
-    setStatus(item, usedLangs.has(lang) ? tr('reading') : tr('readingFirst'), true);
-    const { bubbles } = await TBOcr.run({ source: { blob: item.file }, lang, precise: settings.precise });
-    usedLangs.add(lang);
+    const key = `${settings.ocrEngine}|${lang}`;
+    setStatus(item, usedLangs.has(key) ? tr('reading') : tr('readingFirst'), true);
+    const { bubbles } = await TBOcrRouter.run({
+      source: { blob: item.file }, lang, precise: settings.precise, engine: settings.ocrEngine,
+    });
+    usedLangs.add(key);
     if (!bubbles.length) {
       setStatus(item, tr('noText'));
       return;

@@ -1,4 +1,4 @@
-const DEFAULTS = { ocrLang: 'auto', targetLang: 'fr', engine: 'google', precise: true, autoSites: [] };
+const DEFAULTS = { ocrLang: 'auto', targetLang: 'fr', engine: 'google', ocrEngine: 'paddle', precise: true, autoSites: [] };
 const $ = (id) => document.getElementById(id);
 const t = (key) => chrome.i18n.getMessage(key) || key;
 const ALL_SITES = { origins: ['<all_urls>'] };
@@ -13,7 +13,7 @@ const ALL_SITES = { origins: ['<all_urls>'] };
   }
 
   const s = await chrome.storage.sync.get(DEFAULTS);
-  for (const id of ['ocrLang', 'targetLang', 'engine', 'precise']) {
+  for (const id of ['ocrLang', 'targetLang', 'engine', 'ocrEngine', 'precise']) {
     const el = $(id);
     el.value = String(s[id]);
     el.addEventListener('change', () => {

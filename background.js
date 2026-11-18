@@ -1,11 +1,11 @@
 // Arrière-plan : menus, coordination OCR, traduction gratuite, cache.
 // Chrome : service worker (OCR dans un document offscreen).
 // Firefox : page d'arrière-plan (OCR directement ici, scripts chargés par le manifeste).
-/* global TBTranslate, TBOcr */
+/* global TBTranslate, TBOcrRouter */
 if (typeof importScripts === 'function') importScripts('engine/translate.js');
 const { translateTexts, resolveOcrLang } = TBTranslate;
 
-const DEFAULTS = { ocrLang: 'auto', targetLang: 'fr', engine: 'google', precise: true, autoSites: [] };
+const DEFAULTS = { ocrLang: 'auto', targetLang: 'fr', engine: 'google', ocrEngine: 'paddle', precise: true, autoSites: [] };
 
 const getSettings = () => chrome.storage.sync.get(DEFAULTS);
 const t = (key, subs) => chrome.i18n.getMessage(key, subs) || key;
@@ -71,17 +71,13 @@ async function ensureOffscreen() {
   await creatingOffscreen;
 }
 
-async function runOcr(source, crop, lang, precise) {
+async function runOcr(source, crop, lang, precise, engine) {
   if (!IS_CHROME) {
-    TBOcr.configure({
-      workerPath: chrome.runtime.getURL('lib/worker.min.js'),
-      corePath: chrome.runtime.getURL('lib/core/'),
-      workerBlobURL: false,
-    });
-    return (await TBOcr.run({ source, crop, lang, precise })).bubbles;
+    TBOcrRouter.configureFor(chrome.runtime.getURL(''));
+    return (await TBOcrRouter.run({ source, crop, lang, precise, engine })).bubbles;
   }
   await ensureOffscreen();
-  const res = await chrome.runtime.sendMessage({ target: 'offscreen', type: 'ocr', source, crop, lang, precise });
+  const res = await chrome.runtime.sendMessage({ target: 'offscreen', type: 'ocr', source, crop, lang, precise, engine });
   if (!res?.ok) throw new Error(res?.error || 'E_OCR');
   return res.bubbles;
 }
@@ -142,7 +138,7 @@ async function process(msg, sender) {
   const settings = await getSettings();
   const lang = resolveOcrLang(settings.ocrLang, msg.pageLang);
   const cacheKey = msg.type === 'process' && msg.key
-    ? [lang, settings.targetLang, settings.precise ? 'p' : 'r', msg.key].join('|')
+    ? [lang, settings.targetLang, settings.ocrEngine, settings.precise ? 'p' : 'r', msg.key].join('|')
     : null;
   if (cacheKey) {
     const hit = await cacheGet(cacheKey);
@@ -152,7 +148,7 @@ async function process(msg, sender) {
   let bubbles;
   if (msg.type === 'process') {
     if (msg.source.url) await setReferer(msg.source.url, sender.tab?.url);
-    bubbles = await runOcr(msg.source, null, lang, settings.precise);
+    bubbles = await runOcr(msg.source, null, lang, settings.precise, settings.ocrEngine);
   } else if (msg.type === 'process-capture') {
     // Dernier recours : capture de l'onglet visible puis découpe de l'image.
     const dataUrl = await chrome.tabs.captureVisibleTab(sender.tab.windowId, { format: 'png' });
@@ -161,7 +157,7 @@ async function process(msg, sender) {
       x: Math.round(rect.x * dpr), y: Math.round(rect.y * dpr),
       w: Math.round(rect.w * dpr), h: Math.round(rect.h * dpr),
     };
-    bubbles = await runOcr({ dataUrl }, crop, lang, settings.precise);
+    bubbles = await runOcr({ dataUrl }, crop, lang, settings.precise, settings.ocrEngine);
   } else {
     throw new Error('E_UNKNOWN');
   }

@@ -47,11 +47,13 @@ text is sent to the translation service (Google Translate or MyMemory). No data 
 - **host_permissions (tous les sites) :** télécharger les images de la page pour les lire (beaucoup de sites
   hébergent leurs images sur un autre domaine), contacter le service de traduction, et traduire automatiquement
   les sites que l'utilisateur a choisis.
-- **offscreen :** exécuter la reconnaissance de texte (Tesseract, WebAssembly) dans un Web Worker.
+- **offscreen :** exécuter la reconnaissance de texte (PaddleOCR via ONNX Runtime, Tesseract, WebAssembly) hors de la page.
 - **storage :** enregistrer les réglages et le cache des traductions.
 - **declarativeNetRequestWithHostAccess :** ajouter l'en-tête Referer aux seules requêtes de l'extension
   (images refusées sans lui), jamais à la navigation de l'utilisateur.
-- **Code distant :** aucun. Les seuls fichiers téléchargés sont des données de langue (cdn.jsdelivr.net), pas du code.
+- **Code distant :** aucun. Tout le code (dont ONNX Runtime et Tesseract) est dans le paquet. Les seuls fichiers
+  téléchargés sont des modèles de reconnaissance (poids ONNX officiels de PaddlePaddle sur huggingface.co, données
+  Tesseract sur cdn.jsdelivr.net) : des données, pas du code exécutable.
 - **Données :** « contenu de site web » (texte des bulles envoyé au traducteur). Ni vente, ni usage sans rapport avec la fonction.
 
 ## Captures conseillées (1280×800)

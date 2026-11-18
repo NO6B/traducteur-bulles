@@ -1,9 +1,9 @@
 // Service worker de l'application : fonctionnement hors ligne et réception des images partagées (Android).
-const VERSION = 'tb-v1';
+const VERSION = 'tb-v2';
 const SHELL = [
   './', './index.html', './app.css', './app.js', './manifest.webmanifest', './icon-192.png', './icon-512.png',
-  '../engine/ocr.js', '../engine/translate.js', '../engine/render.js',
-  '../lib/tesseract.min.js', '../lib/worker.min.js', '../fonts/comic-neue-700.woff2',
+  '../engine/ocr.js', '../engine/paddle.js', '../engine/router.js', '../engine/translate.js', '../engine/render.js',
+  '../lib/ort/ort.wasm.min.js', '../lib/tesseract.min.js', '../lib/worker.min.js', '../fonts/comic-neue-700.woff2',
 ];
 
 self.addEventListener('install', (event) => {
@@ -13,7 +13,8 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     for (const key of await caches.keys()) {
-      if (key !== VERSION && key !== 'tb-shared') await caches.delete(key);
+      // Seules les anciennes versions de l'app sont supprimées (pas les modèles ni les partages).
+      if (key.startsWith('tb-v') && key !== VERSION) await caches.delete(key);
     }
     await self.clients.claim();
   })());

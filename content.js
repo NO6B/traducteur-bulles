@@ -245,7 +245,7 @@
       setGeometry(box, 1);
       box.title = t('boxTitle', [b.text]);
       const inner = document.createElement('div');
-      inner.textContent = b.translation || b.text;
+      inner.textContent = (b.translation || b.text).replace(/ ([!?:;»])/g, '\u00a0$1').replace(/« /g, '«\u00a0');
       box.appendChild(inner);
       box.addEventListener('click', (e) => {
         e.preventDefault();

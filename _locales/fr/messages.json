@@ -135,7 +135,7 @@
   "message": "Une seule image : clic droit dessus, puis « Traduire les bulles de cette image ». Page entière : Alt+T."
  },
  "popupHintCache": {
-  "message": "Le premier usage d'une langue télécharge ses données de lecture (quelques Mo). Les pages déjà traduites s'affichent ensuite instantanément."
+  "message": "Le premier usage d'une langue télécharge ses modèles de lecture (10 à 25 Mo), une seule fois. Les pages déjà traduites s'affichent ensuite instantanément."
  },
  "popupClearCache": {
   "message": "Vider le cache"
@@ -229,5 +229,14 @@
  },
  "welcomePrivacy": {
   "message": "Confidentialité : la lecture du texte se fait sur ton appareil. Seul le texte des bulles est envoyé au service de traduction choisi. Aucune donnée n'est collectée par l'extension."
+ },
+ "popupOcrEngine": {
+  "message": "Moteur de lecture"
+ },
+ "ocrPaddle": {
+  "message": "PaddleOCR (recommandé)"
+ },
+ "ocrTesseract": {
+  "message": "Tesseract (plus léger)"
  }
 }

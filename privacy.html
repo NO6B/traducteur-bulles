@@ -17,7 +17,7 @@
 
 <h2>Ce qui reste sur ton appareil</h2>
 <ul>
-  <li>Les images sont analysées localement (reconnaissance de texte par Tesseract.js, exécutée dans ton navigateur). Elles ne sont envoyées à aucun serveur.</li>
+  <li>Les images sont analysées localement (reconnaissance de texte par PaddleOCR ou Tesseract.js, exécutée dans ton navigateur). Elles ne sont envoyées à aucun serveur.</li>
   <li>Tes réglages (langues, précision, sites en traduction automatique) sont enregistrés dans le stockage du navigateur. Si la synchronisation de ton navigateur est activée, il les synchronise avec ton compte.</li>
   <li>Les traductions déjà faites sont gardées en cache local pour être réaffichées rapidement. Tu peux vider ce cache depuis l'extension.</li>
 </ul>
@@ -25,7 +25,7 @@
 <h2>Ce qui est envoyé à des services tiers</h2>
 <ul>
   <li><strong>Le texte des bulles</strong> est envoyé au service de traduction choisi : Google Traduction (translate.googleapis.com) ou MyMemory (api.mymemory.translated.net). Ces services appliquent leurs propres politiques de confidentialité.</li>
-  <li><strong>Les données de reconnaissance d'une langue</strong> (fichiers publics) sont téléchargées une fois depuis cdn.jsdelivr.net. Aucune donnée personnelle n'est envoyée.</li>
+  <li><strong>Les modèles de reconnaissance d'une langue</strong> (fichiers publics) sont téléchargés une fois depuis huggingface.co (modèles officiels PaddlePaddle) ou cdn.jsdelivr.net (Tesseract). Aucune donnée personnelle n'est envoyée.</li>
   <li><strong>Les images de la page</strong> : l'extension peut télécharger une image affichée sur le site que tu consultes, pour la lire. Elle ne la transmet à personne.</li>
 </ul>
 
@@ -45,14 +45,14 @@
 <p>Last updated: November 18, 2026. Applies to the “Bubble Translator” extension and its web app.</p>
 <h2>Stays on your device</h2>
 <ul>
-  <li>Images are analysed locally (Tesseract.js text recognition running in your browser) and are never uploaded.</li>
+  <li>Images are analysed locally (PaddleOCR or Tesseract.js text recognition running in your browser) and are never uploaded.</li>
   <li>Your settings are kept in browser storage (synced by your browser if you enabled sync).</li>
   <li>Past translations are cached locally; you can clear the cache from the extension.</li>
 </ul>
 <h2>Sent to third parties</h2>
 <ul>
   <li><strong>Bubble text</strong> is sent to the translation service you pick: Google Translate (translate.googleapis.com) or MyMemory (api.mymemory.translated.net), under their own privacy policies.</li>
-  <li><strong>Language recognition data</strong> (public files) is downloaded once from cdn.jsdelivr.net. No personal data is sent.</li>
+  <li><strong>Language recognition models</strong> (public files) are downloaded once from huggingface.co (official PaddlePaddle models) or cdn.jsdelivr.net (Tesseract). No personal data is sent.</li>
   <li><strong>Page images</strong> may be downloaded by the extension from the site you are viewing in order to read them. They are not shared with anyone.</li>
 </ul>
 <h2>What we don't do</h2>
