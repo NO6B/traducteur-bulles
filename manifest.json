@@ -18,16 +18,7 @@
     "<all_urls>"
   ],
   "background": {
-    "service_worker": "background.js",
-    "scripts": [
-      "lib/tesseract.min.js",
-      "lib/ort/ort.wasm.min.js",
-      "engine/ocr.js",
-      "engine/paddle.js",
-      "engine/router.js",
-      "engine/translate.js",
-      "background.js"
-    ]
+    "service_worker": "background.js"
   },
   "action": {
     "default_title": "__MSG_extName__",
@@ -63,19 +54,5 @@
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "traducteur-bulles@no6b.github.io",
-      "strict_min_version": "128.0",
-      "data_collection_permissions": {
-        "required": [
-          "websiteContent"
-        ]
-      }
-    },
-    "gecko_android": {
-      "strict_min_version": "128.0"
-    }
   }
 }
